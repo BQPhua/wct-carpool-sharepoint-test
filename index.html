@@ -1865,9 +1865,19 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
   // for changes every 15 seconds instead — close enough to "no refresh needed" for a
   // departmental booking tool, without needing a SignalR-style push server.
   const POLL_INTERVAL_MS = 15000;
+  // renderDetail() fully rebuilds the detail card's HTML, including the key-collection
+  // and return-details forms — if that runs while someone is mid-typing (e.g. filling in
+  // odometer-in before hitting Save), it silently wipes whatever they'd entered. Skip the
+  // detail re-render for this tick if focus is currently inside that view; the next tick
+  // will pick up any real change once they've clicked away or saved.
+  function userIsEditingDetailView(){
+    return !!(document.activeElement && viewDetail.contains(document.activeElement)
+      && document.activeElement !== document.body
+      && document.activeElement.tagName !== 'A' && document.activeElement.tagName !== 'BUTTON');
+  }
   setInterval(async function(){
     await refreshData();
-    if(activeDetailId){
+    if(activeDetailId && !userIsEditingDetailView()){
       const b = bookingsCache.filter(function(x){ return x.id === activeDetailId; })[0];
       renderDetail(b || null, activeIsApprover, activeActingApprover, activeIsAdmin);
     }
