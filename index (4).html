@@ -1,0 +1,2268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WCT EV Pool Car Request Form</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#1F3864;
+    --navy-dark:#152645;
+    --green:#2E7D32;
+    --green-light:#EAF3EA;
+    --green-dark:#1E5C22;
+    --blue:#1D5FA5;
+    --blue-light:#E7F0FA;
+    --amber:#B3730B;
+    --amber-light:#FBF0DE;
+    --red:#A32D2D;
+    --red-light:#FBEAEA;
+    --paper:#FAFAF7;
+    --card:#FFFFFF;
+    --line:#E4E1D8;
+    --ink:#22261F;
+    --ink-soft:#5B5F55;
+    --ink-faint:#8C8F84;
+    --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter',system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding:28px 20px 60px;}
+
+  .masthead{
+    display:flex;justify-content:space-between;align-items:flex-end;
+    padding-bottom:18px;margin-bottom:10px;
+    border-bottom:2px solid var(--navy);
+    flex-wrap:wrap;gap:14px;
+  }
+  .brand-block{display:flex;align-items:center;gap:14px;}
+  .plug-mark{width:40px;height:40px;flex:0 0 auto;object-fit:contain;border-radius:6px;}
+  .brand-text h1{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:22px;font-weight:700;margin:0;color:var(--navy);letter-spacing:.2px;
+  }
+  .brand-text p{margin:2px 0 0;font-size:13px;color:var(--ink-soft);}
+  .fleet-tag{
+    text-align:right;font-size:12px;color:var(--ink-soft);line-height:1.5;
+  }
+  .fleet-tag b{color:var(--green-dark);font-weight:600;}
+
+  .tabs{display:flex;gap:8px;margin-bottom:22px;}
+  .tab-btn{
+    font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;
+    background:none;border:1px solid var(--line);color:var(--ink-soft);
+    padding:8px 16px;border-radius:7px;cursor:pointer;transition:all .15s;
+  }
+  .tab-btn.active{background:var(--navy);border-color:var(--navy);color:#fff;}
+  .tab-btn:not(.active):hover{border-color:var(--navy);color:var(--navy);}
+
+  .view{display:none;}
+  .view.active{display:block;}
+
+  .layout{display:grid;grid-template-columns:1.5fr 1fr;gap:24px;align-items:start;}
+  @media (max-width:820px){.layout{grid-template-columns:1fr;}}
+
+  .card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:24px 26px;
+  }
+  .card + .card{margin-top:18px;}
+
+  .section-title{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:14px;font-weight:600;color:var(--navy);
+    text-transform:uppercase;letter-spacing:.6px;
+    margin:0 0 4px;
+  }
+  .section-sub{font-size:13px;color:var(--ink-soft);margin:0 0 18px;}
+
+  fieldset{border:none;padding:0;margin:0 0 22px;}
+  legend{
+    font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;
+    color:var(--green-dark);text-transform:uppercase;letter-spacing:.5px;
+    padding:0 0 10px;width:100%;border-bottom:1px solid var(--line);margin-bottom:14px;
+  }
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+  @media (max-width:520px){.grid2,.grid3{grid-template-columns:1fr;}}
+
+  label{
+    display:block;font-size:12.5px;font-weight:500;color:var(--ink-soft);
+    margin:0 0 6px;
+  }
+  .req::after{content:" *";color:var(--amber);}
+  .field{margin-bottom:14px;}
+
+  input[type=text],input[type=tel],input[type=date],input[type=time],input[type=number],input[type=password],select,textarea{
+    width:100%;
+    font-family:'Inter',sans-serif;
+    font-size:14px;
+    padding:10px 12px;
+    border:1px solid var(--line);
+    border-radius:7px;
+    background:#fff;
+    color:var(--ink);
+    outline:none;
+    transition:border-color .15s;
+  }
+  input:focus,select:focus,textarea:focus{border-color:var(--green);box-shadow:0 0 0 3px var(--green-light);}
+  textarea{resize:vertical;min-height:64px;font-family:'Inter',sans-serif;}
+
+  .vpref{display:flex;gap:8px;}
+  .vpref label{
+    flex:1;display:flex;align-items:center;justify-content:center;gap:6px;
+    border:1px solid var(--line);border-radius:7px;padding:10px 8px;
+    font-size:13px;font-weight:500;color:var(--ink-soft);cursor:pointer;margin:0;
+    transition:all .15s;
+  }
+  .vpref input{display:none;}
+  .vpref input:checked + span{color:var(--green-dark);}
+  .vpref label:has(input:checked){border-color:var(--green);background:var(--green-light);}
+
+  .submit-row{display:flex;align-items:center;gap:14px;margin-top:6px;flex-wrap:wrap;}
+  button.primary{
+    background:var(--green);color:#fff;border:none;
+    font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14.5px;
+    padding:12px 22px;border-radius:7px;cursor:pointer;
+    transition:background .15s, transform .1s;
+  }
+  button.primary:hover{background:var(--green-dark);}
+  button.primary:active{transform:scale(.98);}
+  button.primary:disabled{background:#B7C4B7;cursor:not-allowed;}
+  button.ghost{
+    background:none;border:1px solid var(--line);color:var(--navy);
+    font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;
+    padding:10px 16px;border-radius:7px;cursor:pointer;transition:all .15s;
+  }
+  button.ghost:hover{border-color:var(--navy);background:var(--navy);color:#fff;}
+  .hint{font-size:12px;color:var(--ink-faint);}
+
+  .msg{
+    display:none;margin-top:16px;padding:14px 16px;border-radius:7px;
+    font-size:13.5px;line-height:1.5;
+  }
+  .msg.ok{display:block;background:var(--green-light);color:var(--green-dark);border:1px solid #BFDFC3;}
+  .msg.err{display:block;background:var(--red-light);color:var(--red);border:1px solid #F0C7C7;}
+  .msg .msg-actions{margin-top:10px;}
+  .msg a.mailto-btn{
+    display:inline-flex;align-items:center;gap:6px;
+    font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:12.5px;
+    color:var(--green-dark);background:#fff;border:1px solid #BFDFC3;
+    padding:7px 12px;border-radius:6px;text-decoration:none;
+  }
+  .msg a.mailto-btn:hover{background:var(--green-light);}
+
+  .side-title{
+    font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14px;
+    color:var(--navy);margin:0 0 2px;
+  }
+  .side-sub{font-size:12.5px;color:var(--ink-soft);margin:0 0 16px;}
+
+  .booking{
+    border:1px solid var(--line);border-radius:8px;padding:12px 13px;margin-bottom:10px;
+    position:relative;
+  }
+  .booking-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px;}
+  .booking-name{font-size:13.5px;font-weight:600;color:var(--ink);}
+  .booking-time{font-size:12px;color:var(--ink-soft);font-variant-numeric:tabular-nums;}
+  .booking-dest{font-size:12.5px;color:var(--ink-soft);margin-bottom:8px;}
+  .badge{
+    display:inline-block;font-size:10.5px;font-weight:600;padding:2px 8px;border-radius:20px;
+    text-transform:uppercase;letter-spacing:.3px;
+  }
+  .badge.car1{background:var(--green-light);color:var(--green-dark);}
+  .badge.car2{background:var(--blue-light);color:var(--blue);}
+  .badge.none{background:#F0EFE9;color:var(--ink-soft);}
+  .badge.pending{background:var(--amber-light);color:var(--amber);margin-left:6px;}
+  .badge.approved{background:var(--green-light);color:var(--green-dark);margin-left:6px;}
+  .badge.rejected{background:var(--red-light);color:var(--red);margin-left:6px;}
+  .badge.completed{background:#E3E9F5;color:var(--navy);margin-left:6px;}
+  .detail-row{display:flex;justify-content:space-between;gap:14px;padding:8px 0;border-bottom:1px solid var(--line);font-size:13.5px;}
+  .detail-row:last-child{border-bottom:none;}
+  .detail-row .k{color:var(--ink-soft);}
+  .detail-row .v{font-weight:500;text-align:right;}
+  button.danger{
+    background:none;border:1px solid var(--red);color:var(--red);
+    font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;
+    padding:10px 16px;border-radius:7px;cursor:pointer;transition:all .15s;
+  }
+  button.danger:hover{background:var(--red);color:#fff;}
+
+  .empty-state{
+    text-align:center;padding:30px 10px;color:var(--ink-faint);font-size:13px;
+  }
+  .charge-icon{width:26px;height:26px;margin:0 auto 8px;opacity:.5;}
+
+  .loading{font-size:13px;color:var(--ink-faint);padding:8px 0;}
+
+  .footnote{
+    margin-top:20px;font-size:11.5px;color:var(--ink-faint);line-height:1.6;
+    border-top:1px dashed var(--line);padding-top:12px;
+  }
+
+  .qr-card{display:flex;gap:16px;align-items:center;}
+  .qr-card img{width:96px;height:96px;border:1px solid var(--line);border-radius:6px;flex:0 0 auto;background:#fff;}
+  .qr-copy-row{display:flex;gap:8px;margin-top:8px;}
+  .qr-copy-row input{font-size:12px;padding:7px 10px;background:var(--paper);color:var(--ink-soft);}
+  .qr-copy-row button{flex:0 0 auto;}
+  .copy-btn{
+    background:none;border:1px solid var(--line);color:var(--ink-soft);
+    font-family:'Inter',sans-serif;font-size:12px;font-weight:500;
+    padding:0 12px;border-radius:6px;cursor:pointer;
+  }
+  .copy-btn:hover{border-color:var(--navy);color:var(--navy);}
+
+  .lock-box{max-width:340px;}
+  .lock-box .field{margin-bottom:10px;}
+
+  table.admin-table{width:100%;border-collapse:collapse;font-size:13px;}
+  table.admin-table th{
+    text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.4px;
+    color:var(--ink-faint);font-weight:600;padding:8px 10px;border-bottom:1px solid var(--line);
+  }
+  table.admin-table td{padding:10px;border-bottom:1px solid var(--line);vertical-align:top;}
+  table.admin-table tr:last-child td{border-bottom:none;}
+  table.admin-table select{padding:6px 8px;font-size:12.5px;width:auto;}
+  .admin-toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px;}
+  .admin-cell-name{font-weight:600;}
+  .admin-cell-sub{color:var(--ink-faint);font-size:11.5px;margin-top:2px;}
+  .row-save{
+    background:none;border:1px solid var(--line);color:var(--navy);font-size:11.5px;
+    font-family:'Space Grotesk',sans-serif;font-weight:600;padding:5px 10px;border-radius:6px;cursor:pointer;
+  }
+  .row-save:hover{border-color:var(--navy);background:var(--navy);color:#fff;}
+  .row-save:disabled{opacity:.5;cursor:default;}
+  .table-scroll{overflow-x:auto;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="masthead">
+    <div class="brand-block">
+      <img class="plug-mark" src="data:image/png;base64,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" alt="WCT logo">
+      <div class="brand-text">
+        <h1>WCT — POOL CAR REQUEST</h1>
+        <p>Official business only</p>
+      </div>
+    </div>
+    <div class="fleet-tag">
+      Booking managed by <b>Administration</b><br>
+      Submit at least 3 working days ahead
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" id="tabRequestBtn">Request form</button>
+    <button class="tab-btn" id="tabAdminBtn">Admin view</button>
+  </div>
+
+  <div class="view active" id="viewRequest">
+    <div class="layout">
+
+      <div class="card">
+        <p class="section-title">Trip request</p>
+        <p class="section-sub">All fields marked * are required. Your request is logged for Administration's approval and vehicle allocation.</p>
+
+        <form id="reqForm" novalidate>
+
+          <fieldset>
+            <legend>Driver details</legend>
+            <div class="grid2">
+              <div class="field">
+                <label class="req" for="staffName">Staff name</label>
+                <input type="text" id="staffName" required placeholder="e.g. As per employee record">
+              </div>
+              <div class="field">
+                <label class="req" for="department">Department</label>
+                <input type="text" id="department" required placeholder="e.g. Project Management">
+              </div>
+              <div class="field">
+                <label class="req" for="company">Company</label>
+                <input type="text" id="company" required placeholder="e.g. WCT Construction Sdn Bhd">
+              </div>
+              <div class="field">
+                <label class="req" for="employeeNo">Employee no.</label>
+                <input type="text" id="employeeNo" required placeholder="e.g. WCT-0231">
+              </div>
+              <div class="field">
+                <label class="req" for="licenceExpiryDate">Driving licence expiry date</label>
+                <input type="date" id="licenceExpiryDate" required>
+              </div>
+              <div class="field">
+                <label class="req" for="contact">Contact number</label>
+                <input type="tel" id="contact" required placeholder="e.g. 01X-XXX XXXX">
+              </div>
+              <div class="field">
+                <label class="req" for="requesterEmail">Your email <span class="hint">(for approval notification)</span></label>
+                <input type="text" id="requesterEmail" required placeholder="e.g. you@wct.my">
+              </div>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Pool Motor Vehicle Request</legend>
+            <div class="grid2">
+              <div class="field">
+                <label class="req" for="tripDate">Date required</label>
+                <input type="date" id="tripDate" required>
+              </div>
+              <div class="field">
+                <label class="req" for="timeOut">Time out</label>
+                <input type="time" id="timeOut" required>
+              </div>
+            </div>
+            <div class="grid2">
+              <div class="field">
+                <label class="req" for="returnDate">Return date <span class="hint">(same day, unless overnight)</span></label>
+                <input type="date" id="returnDate" required>
+              </div>
+              <div class="field">
+                <label class="req" for="timeIn">Expected time in</label>
+                <input type="time" id="timeIn" required>
+              </div>
+            </div>
+            <div class="grid2">
+              <div class="field">
+                <label class="req" for="destination">Destination</label>
+                <input type="text" id="destination" required placeholder="e.g. Client site, Bangsar South">
+              </div>
+              <div class="field">
+                <label class="req" for="requestedCarType">Car type</label>
+                <select id="requestedCarType" required>
+                  <option value="" disabled selected>Select car type</option>
+                </select>
+              </div>
+            </div>
+            <div class="field">
+              <label class="req" for="purpose">Purpose of trip</label>
+              <textarea id="purpose" required placeholder="e.g. Site visit for progress inspection"></textarea>
+            </div>
+            <div class="field">
+              <label for="licenceAttachment">Attachments</label>
+              <div style="display:flex;align-items:center;gap:10px;">
+                <input type="file" id="licenceAttachment" accept="image/*,.pdf" style="flex:1;">
+                <button type="button" class="ghost" id="removeAttachmentBtn" style="display:none;">Remove</button>
+              </div>
+              <div id="licenceAttachmentPreview" style="margin-top:8px;"></div>
+              <p class="hint" style="margin-top:6px;">If this is your first time using this system, please attach a photo/scan of your driving licence.</p>
+            </div>
+          </fieldset>
+
+          <div class="submit-row">
+            <button type="submit" class="primary" id="submitBtn">Review request</button>
+            <span class="hint">You'll get a chance to check everything before it's actually submitted.</span>
+          </div>
+
+          <div class="msg" id="formMsg"></div>
+        </form>
+      </div>
+
+      <div>
+        <div class="card qr-card">
+          <div id="qrImg" style="width:96px;height:96px;flex:0 0 auto;border:1px solid var(--line);border-radius:6px;background:#fff;display:flex;align-items:center;justify-content:center;"></div>
+          <div style="flex:1;min-width:0;">
+            <p class="side-title" style="margin-bottom:6px;">Open on your phone</p>
+            <p class="side-sub" style="margin-bottom:8px;">Scan to fill this out on the go.</p>
+            <div class="qr-copy-row">
+              <input type="text" id="pageUrl" readonly>
+              <button class="copy-btn" id="copyUrlBtn">Copy</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <p class="footnote">
+      This form logs directly to WCT's shared EV pool car booking register. Entries are visible to all staff using this form, in line with the EV Pool Car Usage Policy. The car is assigned by Administration once your request is approved.
+    </p>
+  </div>
+
+  <div class="view" id="viewAdmin">
+    <div class="card lock-box" id="lockCard">
+      <p class="section-title">Admin access</p>
+      <p class="section-sub">Enter the admin passcode to review and action requests.</p>
+      <div class="field">
+        <label for="passcodeInput">Passcode</label>
+        <input type="password" id="passcodeInput" placeholder="e.g. XXXX-XXXX">
+      </div>
+      <button class="primary" id="unlockBtn" type="button">Unlock admin view</button>
+      <div class="msg" id="lockMsg"></div>
+      <p class="hint" style="margin-top:14px;">Each admin has their own passcode — see the note below the request form for details on its limits. Passcodes are set in the form's source code.</p>
+    </div>
+
+    <div class="card" id="adminQuickNav" style="display:none;position:sticky;top:0;z-index:5;">
+      <p class="section-title" style="margin-bottom:10px;">Jump to</p>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;">
+        <button class="ghost" type="button" data-jump="carAvailabilityAdminCard">Car availability</button>
+        <button class="ghost" type="button" data-jump="registerAdminCard">Booking register</button>
+        <button class="ghost" type="button" data-jump="adminCard">All requests</button>
+        <button class="ghost" type="button" data-jump="approverAdminCard">Approver settings</button>
+        <button class="ghost" type="button" data-jump="carsAdminCard">Manage cars</button>
+      </div>
+    </div>
+
+    <div class="card" id="carAvailabilityAdminCard" style="display:none;">
+      <p class="section-title" style="margin-bottom:2px;">Car availability</p>
+      <p class="side-sub">Live status of the pool fleet.</p>
+      <div class="grid2" style="margin-bottom:14px;">
+        <div class="field" style="margin-bottom:0;">
+          <input type="text" id="availabilitySearchInput" placeholder="e.g. search by car ID or label">
+        </div>
+        <div class="field" style="margin-bottom:0;">
+          <select id="availabilityStatusFilter">
+            <option value="">All cars</option>
+            <option value="available">Available only</option>
+            <option value="inuse">In use only</option>
+          </select>
+        </div>
+      </div>
+      <div id="carAvailabilityList"><div class="loading">Loading cars…</div></div>
+      <div class="submit-row" style="margin-top:14px;justify-content:space-between;">
+        <button class="ghost" id="availabilityPrevBtn" type="button">← Previous</button>
+        <span class="hint" id="availabilityPageLabel">Page 1</span>
+        <button class="ghost" id="availabilityNextBtn" type="button">Next →</button>
+      </div>
+    </div>
+
+    <div class="card" id="registerAdminCard" style="display:none;">
+      <p class="section-title" style="margin-bottom:2px;">Booking register</p>
+      <p class="side-sub">Live requests logged by all staff, most recent first.</p>
+      <div class="grid2" style="margin-bottom:14px;">
+        <div class="field" style="margin-bottom:0;">
+          <input type="text" id="registerSearchInput" placeholder="e.g. search by name, destination, or request ID">
+        </div>
+        <div class="field" style="margin-bottom:0;">
+          <select id="registerStatusFilter">
+            <option value="">All statuses</option>
+            <option value="Pending">Pending</option>
+            <option value="Approved">Approved</option>
+            <option value="Rejected">Rejected</option>
+            <option value="Completed">Completed</option>
+          </select>
+        </div>
+      </div>
+      <div id="bookingList"><div class="loading">Loading bookings…</div></div>
+      <div class="submit-row" style="margin-top:14px;justify-content:space-between;">
+        <button class="ghost" id="registerPrevBtn" type="button">← Previous</button>
+        <span class="hint" id="registerPageLabel">Page 1</span>
+        <button class="ghost" id="registerNextBtn" type="button">Next →</button>
+      </div>
+    </div>
+
+    <div class="card" id="adminCard" style="display:none;">
+      <div class="admin-toolbar">
+        <div>
+          <p class="section-title" style="margin-bottom:2px;">All requests</p>
+          <p class="side-sub" style="margin-bottom:0;" id="adminSignedInAs">Update status and save — changes reflect in the booking register instantly.</p>
+        </div>
+        <button class="ghost" id="refreshAdminBtn" type="button">Refresh</button>
+      </div>
+      <div class="grid2" style="margin:14px 0;">
+        <div class="field" style="margin-bottom:0;">
+          <input type="text" id="adminSearchInput" placeholder="e.g. search by name, destination, or request ID">
+        </div>
+        <div class="field" style="margin-bottom:0;">
+          <select id="adminStatusFilter">
+            <option value="">All statuses</option>
+            <option value="Pending">Pending</option>
+            <option value="Approved">Approved</option>
+            <option value="Rejected">Rejected</option>
+            <option value="Completed">Completed</option>
+          </select>
+        </div>
+      </div>
+      <div class="table-scroll">
+        <table class="admin-table" id="adminTable">
+          <thead>
+            <tr>
+              <th>Staff</th>
+              <th>Trip</th>
+              <th>Car</th>
+              <th>Odometer / Parking</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="adminTbody"></tbody>
+        </table>
+      </div>
+      <div class="submit-row" style="margin-top:14px;justify-content:space-between;">
+        <button class="ghost" id="adminPrevBtn" type="button">← Previous</button>
+        <span class="hint" id="adminPageLabel">Page 1</span>
+        <button class="ghost" id="adminNextBtn" type="button">Next →</button>
+      </div>
+    </div>
+
+    <div class="card" id="approverAdminCard" style="display:none;">
+      <p class="section-title" style="margin-bottom:2px;">Approver settings</p>
+      <p class="side-sub">Every request is sent to all approvers listed here — add a second (or more) so requests still get handled if one person is unavailable. Any approver can approve or reject.</p>
+      <div id="approversList" style="margin-bottom:16px;"></div>
+      <div class="grid2">
+        <div class="field">
+          <label for="newApproverNameInput">Approver name</label>
+          <input type="text" id="newApproverNameInput" placeholder="e.g. HOD">
+        </div>
+        <div class="field">
+          <label for="newApproverEmailInput">Approver email</label>
+          <input type="text" id="newApproverEmailInput" placeholder="e.g. hod@wct.my">
+        </div>
+      </div>
+      <button class="primary" id="addApproverBtn" type="button">Add approver</button>
+      <button class="ghost" id="cancelApproverEditBtn" type="button" style="display:none;">Cancel edit</button>
+      <div class="msg" id="approverMsg"></div>
+    </div>
+
+    <div class="card" id="carsAdminCard" style="display:none;">
+      <p class="section-title" style="margin-bottom:2px;">Manage cars</p>
+      <p class="side-sub">Add pool cars here — no code changes needed. Existing bookings referencing a car aren't affected if you edit this list.</p>
+      <div class="field">
+        <input type="text" id="carsSearchInput" placeholder="e.g. search by car ID, label, or type">
+      </div>
+      <div id="carsList" style="margin-bottom:16px;"></div>
+      <div class="submit-row" style="margin-bottom:16px;justify-content:space-between;">
+        <button class="ghost" id="carsPrevBtn" type="button">← Previous</button>
+        <span class="hint" id="carsPageLabel">Page 1</span>
+        <button class="ghost" id="carsNextBtn" type="button">Next →</button>
+      </div>
+      <div class="grid3">
+        <div class="field">
+          <label for="newCarId">Car ID</label>
+          <input type="text" id="newCarId" placeholder="e.g. EV-3">
+        </div>
+        <div class="field">
+          <label for="newCarType">Type</label>
+          <input type="text" id="newCarType" placeholder="e.g. EV">
+        </div>
+        <div class="field">
+          <label for="newCarPlate">Plate</label>
+          <input type="text" id="newCarPlate" placeholder="e.g. ABC 9999">
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="field">
+          <label for="newCarBrand">Brand</label>
+          <input type="text" id="newCarBrand" placeholder="e.g. Proton">
+        </div>
+        <div class="field">
+          <label for="newCarModel">Model</label>
+          <input type="text" id="newCarModel" placeholder="e.g. eMas 5">
+        </div>
+      </div>
+      <div class="field">
+        <label for="newCarLabel">Display label <span class="hint">(shown in the car dropdown)</span></label>
+        <input type="text" id="newCarLabel" placeholder="e.g. EV 3 — Proton eMas 5 (ABC 9999)">
+      </div>
+      <button class="primary" id="addCarBtn" type="button">Add car</button>
+      <button class="ghost" id="cancelCarEditBtn" type="button" style="display:none;">Cancel edit</button>
+      <div class="msg" id="carsMsg"></div>
+    </div>
+  </div>
+
+  <div class="view" id="viewDetail">
+    <div class="card" id="detailCard"></div>
+  </div>
+
+  <div class="view" id="viewReview">
+    <div class="card" id="reviewCard"></div>
+  </div>
+
+</div>
+
+<script>
+var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],f={},c=function(t,r){o=function(t){for(var r=new Array(t),e=0;e<t;e+=1){r[e]=new Array(t);for(var n=0;n<t;n+=1)r[e][n]=null}return r}(i=4*e+17),l(0,0),l(i-7,0),l(0,i-7),s(),h(),d(t,r),e>=7&&v(t),null==a&&(a=p(e,n,u)),w(a,r)},l=function(t,r){for(var e=-1;e<=7;e+=1)if(!(t+e<=-1||i<=t+e))for(var n=-1;n<=7;n+=1)r+n<=-1||i<=r+n||(o[t+e][r+n]=0<=e&&e<=6&&(0==n||6==n)||0<=n&&n<=6&&(0==e||6==e)||2<=e&&e<=4&&2<=n&&n<=4)},h=function(){for(var t=8;t<i-8;t+=1)null==o[t][6]&&(o[t][6]=t%2==0);for(var r=8;r<i-8;r+=1)null==o[6][r]&&(o[6][r]=r%2==0)},s=function(){for(var t=B.getPatternPosition(e),r=0;r<t.length;r+=1)for(var n=0;n<t.length;n+=1){var i=t[r],a=t[n];if(null==o[i][a])for(var u=-2;u<=2;u+=1)for(var f=-2;f<=2;f+=1)o[i+u][a+f]=-2==u||2==u||-2==f||2==f||0==u&&0==f}},v=function(t){for(var r=B.getBCHTypeNumber(e),n=0;n<18;n+=1){var a=!t&&1==(r>>n&1);o[Math.floor(n/3)][n%3+i-8-3]=a}for(n=0;n<18;n+=1){a=!t&&1==(r>>n&1);o[n%3+i-8-3][Math.floor(n/3)]=a}},d=function(t,r){for(var e=n<<3|r,a=B.getBCHTypeInfo(e),u=0;u<15;u+=1){var f=!t&&1==(a>>u&1);u<6?o[u][8]=f:u<8?o[u+1][8]=f:o[i-15+u][8]=f}for(u=0;u<15;u+=1){f=!t&&1==(a>>u&1);u<8?o[8][i-u-1]=f:u<9?o[8][15-u-1+1]=f:o[8][15-u-1]=f}o[i-8][8]=!t},w=function(t,r){for(var e=-1,n=i-1,a=7,u=0,f=B.getMaskFunction(r),c=i-1;c>0;c-=2)for(6==c&&(c-=1);;){for(var g=0;g<2;g+=1)if(null==o[n][c-g]){var l=!1;u<t.length&&(l=1==(t[u]>>>a&1)),f(n,c-g)&&(l=!l),o[n][c-g]=l,-1==(a-=1)&&(u+=1,a=7)}if((n+=e)<0||i<=n){n-=e,e=-e;break}}},p=function(t,r,e){for(var n=A.getRSBlocks(t,r),o=b(),i=0;i<e.length;i+=1){var a=e[i];o.put(a.getMode(),4),o.put(a.getLength(),B.getLengthInBits(a.getMode(),t)),a.write(o)}var u=0;for(i=0;i<n.length;i+=1)u+=n[i].dataCount;if(o.getLengthInBits()>8*u)throw"code length overflow. ("+o.getLengthInBits()+">"+8*u+")";for(o.getLengthInBits()+4<=8*u&&o.put(0,4);o.getLengthInBits()%8!=0;)o.putBit(!1);for(;!(o.getLengthInBits()>=8*u||(o.put(236,8),o.getLengthInBits()>=8*u));)o.put(17,8);return function(t,r){for(var e=0,n=0,o=0,i=new Array(r.length),a=new Array(r.length),u=0;u<r.length;u+=1){var f=r[u].dataCount,c=r[u].totalCount-f;n=Math.max(n,f),o=Math.max(o,c),i[u]=new Array(f);for(var g=0;g<i[u].length;g+=1)i[u][g]=255&t.getBuffer()[g+e];e+=f;var l=B.getErrorCorrectPolynomial(c),h=k(i[u],l.getLength()-1).mod(l);for(a[u]=new Array(l.getLength()-1),g=0;g<a[u].length;g+=1){var s=g+h.getLength()-a[u].length;a[u][g]=s>=0?h.getAt(s):0}}var v=0;for(g=0;g<r.length;g+=1)v+=r[g].totalCount;var d=new Array(v),w=0;for(g=0;g<n;g+=1)for(u=0;u<r.length;u+=1)g<i[u].length&&(d[w]=i[u][g],w+=1);for(g=0;g<o;g+=1)for(u=0;u<r.length;u+=1)g<a[u].length&&(d[w]=a[u][g],w+=1);return d}(o,n)};f.addData=function(t,r){var e=null;switch(r=r||"Byte"){case"Numeric":e=M(t);break;case"Alphanumeric":e=x(t);break;case"Byte":e=m(t);break;case"Kanji":e=L(t);break;default:throw"mode:"+r}u.push(e),a=null},f.isDark=function(t,r){if(t<0||i<=t||r<0||i<=r)throw t+","+r;return o[t][r]},f.getModuleCount=function(){return i},f.make=function(){if(e<1){for(var t=1;t<40;t++){for(var r=A.getRSBlocks(t,n),o=b(),i=0;i<u.length;i++){var a=u[i];o.put(a.getMode(),4),o.put(a.getLength(),B.getLengthInBits(a.getMode(),t)),a.write(o)}var g=0;for(i=0;i<r.length;i++)g+=r[i].dataCount;if(o.getLengthInBits()<=8*g)break}e=t}c(!1,function(){for(var t=0,r=0,e=0;e<8;e+=1){c(!0,e);var n=B.getLostPoint(f);(0==e||t>n)&&(t=n,r=e)}return r}())},f.createTableTag=function(t,r){t=t||2;var e="";e+='<table style="',e+=" border-width: 0px; border-style: none;",e+=" border-collapse: collapse;",e+=" padding: 0px; margin: "+(r=void 0===r?4*t:r)+"px;",e+='">',e+="<tbody>";for(var n=0;n<f.getModuleCount();n+=1){e+="<tr>";for(var o=0;o<f.getModuleCount();o+=1)e+='<td style="',e+=" border-width: 0px; border-style: none;",e+=" border-collapse: collapse;",e+=" padding: 0px; margin: 0px;",e+=" width: "+t+"px;",e+=" height: "+t+"px;",e+=" background-color: ",e+=f.isDark(n,o)?"#000000":"#ffffff",e+=";",e+='"/>';e+="</tr>"}return e+="</tbody>",e+="</table>"},f.createSvgTag=function(t,r,e,n){var o={};"object"==typeof arguments[0]&&(t=(o=arguments[0]).cellSize,r=o.margin,e=o.alt,n=o.title),t=t||2,r=void 0===r?4*t:r,(e="string"==typeof e?{text:e}:e||{}).text=e.text||null,e.id=e.text?e.id||"qrcode-description":null,(n="string"==typeof n?{text:n}:n||{}).text=n.text||null,n.id=n.text?n.id||"qrcode-title":null;var i,a,u,c,g=f.getModuleCount()*t+2*r,l="";for(c="l"+t+",0 0,"+t+" -"+t+",0 0,-"+t+"z ",l+='<svg version="1.1" xmlns="http://www.w3.org/2000/svg"',l+=o.scalable?"":' width="'+g+'px" height="'+g+'px"',l+=' viewBox="0 0 '+g+" "+g+'" ',l+=' preserveAspectRatio="xMinYMin meet"',l+=n.text||e.text?' role="img" aria-labelledby="'+y([n.id,e.id].join(" ").trim())+'"':"",l+=">",l+=n.text?'<title id="'+y(n.id)+'">'+y(n.text)+"</title>":"",l+=e.text?'<description id="'+y(e.id)+'">'+y(e.text)+"</description>":"",l+='<rect width="100%" height="100%" fill="white" cx="0" cy="0"/>',l+='<path d="',a=0;a<f.getModuleCount();a+=1)for(u=a*t+r,i=0;i<f.getModuleCount();i+=1)f.isDark(a,i)&&(l+="M"+(i*t+r)+","+u+c);return l+='" stroke="transparent" fill="black"/>',l+="</svg>"},f.createDataURL=function(t,r){t=t||2,r=void 0===r?4*t:r;var e=f.getModuleCount()*t+2*r,n=r,o=e-r;return I(e,e,function(r,e){if(n<=r&&r<o&&n<=e&&e<o){var i=Math.floor((r-n)/t),a=Math.floor((e-n)/t);return f.isDark(a,i)?0:1}return 1})},f.createImgTag=function(t,r,e){t=t||2,r=void 0===r?4*t:r;var n=f.getModuleCount()*t+2*r,o="";return o+="<img",o+=' src="',o+=f.createDataURL(t,r),o+='"',o+=' width="',o+=n,o+='"',o+=' height="',o+=n,o+='"',e&&(o+=' alt="',o+=y(e),o+='"'),o+="/>"};var y=function(t){for(var r="",e=0;e<t.length;e+=1){var n=t.charAt(e);switch(n){case"<":r+="&lt;";break;case">":r+="&gt;";break;case"&":r+="&amp;";break;case'"':r+="&quot;";break;default:r+=n}}return r};return f.createASCII=function(t,r){if((t=t||1)<2)return function(t){t=void 0===t?2:t;var r,e,n,o,i,a=1*f.getModuleCount()+2*t,u=t,c=a-t,g={"██":"█","█ ":"▀"," █":"▄","  ":" "},l={"██":"▀","█ ":"▀"," █":" ","  ":" "},h="";for(r=0;r<a;r+=2){for(n=Math.floor((r-u)/1),o=Math.floor((r+1-u)/1),e=0;e<a;e+=1)i="█",u<=e&&e<c&&u<=r&&r<c&&f.isDark(n,Math.floor((e-u)/1))&&(i=" "),u<=e&&e<c&&u<=r+1&&r+1<c&&f.isDark(o,Math.floor((e-u)/1))?i+=" ":i+="█",h+=t<1&&r+1>=c?l[i]:g[i];h+="\n"}return a%2&&t>0?h.substring(0,h.length-a-1)+Array(a+1).join("▀"):h.substring(0,h.length-1)}(r);t-=1,r=void 0===r?2*t:r;var e,n,o,i,a=f.getModuleCount()*t+2*r,u=r,c=a-r,g=Array(t+1).join("██"),l=Array(t+1).join("  "),h="",s="";for(e=0;e<a;e+=1){for(o=Math.floor((e-u)/t),s="",n=0;n<a;n+=1)i=1,u<=n&&n<c&&u<=e&&e<c&&f.isDark(o,Math.floor((n-u)/t))&&(i=0),s+=i?g:l;for(o=0;o<t;o+=1)h+=s+"\n"}return h.substring(0,h.length-1)},f.renderTo2dContext=function(t,r){r=r||2;for(var e=f.getModuleCount(),n=0;n<e;n++)for(var o=0;o<e;o++)t.fillStyle=f.isDark(n,o)?"black":"white",t.fillRect(o*r,n*r,r,r)},f};t.stringToBytes=(t.stringToBytesFuncs={default:function(t){for(var r=[],e=0;e<t.length;e+=1){var n=t.charCodeAt(e);r.push(255&n)}return r}}).default,t.createStringToBytes=function(t,r){var e=function(){for(var e=S(t),n=function(){var t=e.read();if(-1==t)throw"eof";return t},o=0,i={};;){var a=e.read();if(-1==a)break;var u=n(),f=n()<<8|n();i[String.fromCharCode(a<<8|u)]=f,o+=1}if(o!=r)throw o+" != "+r;return i}(),n="?".charCodeAt(0);return function(t){for(var r=[],o=0;o<t.length;o+=1){var i=t.charCodeAt(o);if(i<128)r.push(i);else{var a=e[t.charAt(o)];"number"==typeof a?(255&a)==a?r.push(a):(r.push(a>>>8),r.push(255&a)):r.push(n)}}return r}};var r,e,n,o,i,a=1,u=2,f=4,c=8,g={L:1,M:0,Q:3,H:2},l=0,h=1,s=2,v=3,d=4,w=5,p=6,y=7,B=(r=[[],[6,18],[6,22],[6,26],[6,30],[6,34],[6,22,38],[6,24,42],[6,26,46],[6,28,50],[6,30,54],[6,32,58],[6,34,62],[6,26,46,66],[6,26,48,70],[6,26,50,74],[6,30,54,78],[6,30,56,82],[6,30,58,86],[6,34,62,90],[6,28,50,72,94],[6,26,50,74,98],[6,30,54,78,102],[6,28,54,80,106],[6,32,58,84,110],[6,30,58,86,114],[6,34,62,90,118],[6,26,50,74,98,122],[6,30,54,78,102,126],[6,26,52,78,104,130],[6,30,56,82,108,134],[6,34,60,86,112,138],[6,30,58,86,114,142],[6,34,62,90,118,146],[6,30,54,78,102,126,150],[6,24,50,76,102,128,154],[6,28,54,80,106,132,158],[6,32,58,84,110,136,162],[6,26,54,82,110,138,166],[6,30,58,86,114,142,170]],e=1335,n=7973,i=function(t){for(var r=0;0!=t;)r+=1,t>>>=1;return r},(o={}).getBCHTypeInfo=function(t){for(var r=t<<10;i(r)-i(e)>=0;)r^=e<<i(r)-i(e);return 21522^(t<<10|r)},o.getBCHTypeNumber=function(t){for(var r=t<<12;i(r)-i(n)>=0;)r^=n<<i(r)-i(n);return t<<12|r},o.getPatternPosition=function(t){return r[t-1]},o.getMaskFunction=function(t){switch(t){case l:return function(t,r){return(t+r)%2==0};case h:return function(t,r){return t%2==0};case s:return function(t,r){return r%3==0};case v:return function(t,r){return(t+r)%3==0};case d:return function(t,r){return(Math.floor(t/2)+Math.floor(r/3))%2==0};case w:return function(t,r){return t*r%2+t*r%3==0};case p:return function(t,r){return(t*r%2+t*r%3)%2==0};case y:return function(t,r){return(t*r%3+(t+r)%2)%2==0};default:throw"bad maskPattern:"+t}},o.getErrorCorrectPolynomial=function(t){for(var r=k([1],0),e=0;e<t;e+=1)r=r.multiply(k([1,C.gexp(e)],0));return r},o.getLengthInBits=function(t,r){if(1<=r&&r<10)switch(t){case a:return 10;case u:return 9;case f:case c:return 8;default:throw"mode:"+t}else if(r<27)switch(t){case a:return 12;case u:return 11;case f:return 16;case c:return 10;default:throw"mode:"+t}else{if(!(r<41))throw"type:"+r;switch(t){case a:return 14;case u:return 13;case f:return 16;case c:return 12;default:throw"mode:"+t}}},o.getLostPoint=function(t){for(var r=t.getModuleCount(),e=0,n=0;n<r;n+=1)for(var o=0;o<r;o+=1){for(var i=0,a=t.isDark(n,o),u=-1;u<=1;u+=1)if(!(n+u<0||r<=n+u))for(var f=-1;f<=1;f+=1)o+f<0||r<=o+f||0==u&&0==f||a==t.isDark(n+u,o+f)&&(i+=1);i>5&&(e+=3+i-5)}for(n=0;n<r-1;n+=1)for(o=0;o<r-1;o+=1){var c=0;t.isDark(n,o)&&(c+=1),t.isDark(n+1,o)&&(c+=1),t.isDark(n,o+1)&&(c+=1),t.isDark(n+1,o+1)&&(c+=1),0!=c&&4!=c||(e+=3)}for(n=0;n<r;n+=1)for(o=0;o<r-6;o+=1)t.isDark(n,o)&&!t.isDark(n,o+1)&&t.isDark(n,o+2)&&t.isDark(n,o+3)&&t.isDark(n,o+4)&&!t.isDark(n,o+5)&&t.isDark(n,o+6)&&(e+=40);for(o=0;o<r;o+=1)for(n=0;n<r-6;n+=1)t.isDark(n,o)&&!t.isDark(n+1,o)&&t.isDark(n+2,o)&&t.isDark(n+3,o)&&t.isDark(n+4,o)&&!t.isDark(n+5,o)&&t.isDark(n+6,o)&&(e+=40);var g=0;for(o=0;o<r;o+=1)for(n=0;n<r;n+=1)t.isDark(n,o)&&(g+=1);return e+=Math.abs(100*g/r/r-50)/5*10},o),C=function(){for(var t=new Array(256),r=new Array(256),e=0;e<8;e+=1)t[e]=1<<e;for(e=8;e<256;e+=1)t[e]=t[e-4]^t[e-5]^t[e-6]^t[e-8];for(e=0;e<255;e+=1)r[t[e]]=e;var n={glog:function(t){if(t<1)throw"glog("+t+")";return r[t]},gexp:function(r){for(;r<0;)r+=255;for(;r>=256;)r-=255;return t[r]}};return n}();function k(t,r){if(void 0===t.length)throw t.length+"/"+r;var e=function(){for(var e=0;e<t.length&&0==t[e];)e+=1;for(var n=new Array(t.length-e+r),o=0;o<t.length-e;o+=1)n[o]=t[o+e];return n}(),n={getAt:function(t){return e[t]},getLength:function(){return e.length},multiply:function(t){for(var r=new Array(n.getLength()+t.getLength()-1),e=0;e<n.getLength();e+=1)for(var o=0;o<t.getLength();o+=1)r[e+o]^=C.gexp(C.glog(n.getAt(e))+C.glog(t.getAt(o)));return k(r,0)},mod:function(t){if(n.getLength()-t.getLength()<0)return n;for(var r=C.glog(n.getAt(0))-C.glog(t.getAt(0)),e=new Array(n.getLength()),o=0;o<n.getLength();o+=1)e[o]=n.getAt(o);for(o=0;o<t.getLength();o+=1)e[o]^=C.gexp(C.glog(t.getAt(o))+r);return k(e,0).mod(t)}};return n}var A=function(){var t=[[1,26,19],[1,26,16],[1,26,13],[1,26,9],[1,44,34],[1,44,28],[1,44,22],[1,44,16],[1,70,55],[1,70,44],[2,35,17],[2,35,13],[1,100,80],[2,50,32],[2,50,24],[4,25,9],[1,134,108],[2,67,43],[2,33,15,2,34,16],[2,33,11,2,34,12],[2,86,68],[4,43,27],[4,43,19],[4,43,15],[2,98,78],[4,49,31],[2,32,14,4,33,15],[4,39,13,1,40,14],[2,121,97],[2,60,38,2,61,39],[4,40,18,2,41,19],[4,40,14,2,41,15],[2,146,116],[3,58,36,2,59,37],[4,36,16,4,37,17],[4,36,12,4,37,13],[2,86,68,2,87,69],[4,69,43,1,70,44],[6,43,19,2,44,20],[6,43,15,2,44,16],[4,101,81],[1,80,50,4,81,51],[4,50,22,4,51,23],[3,36,12,8,37,13],[2,116,92,2,117,93],[6,58,36,2,59,37],[4,46,20,6,47,21],[7,42,14,4,43,15],[4,133,107],[8,59,37,1,60,38],[8,44,20,4,45,21],[12,33,11,4,34,12],[3,145,115,1,146,116],[4,64,40,5,65,41],[11,36,16,5,37,17],[11,36,12,5,37,13],[5,109,87,1,110,88],[5,65,41,5,66,42],[5,54,24,7,55,25],[11,36,12,7,37,13],[5,122,98,1,123,99],[7,73,45,3,74,46],[15,43,19,2,44,20],[3,45,15,13,46,16],[1,135,107,5,136,108],[10,74,46,1,75,47],[1,50,22,15,51,23],[2,42,14,17,43,15],[5,150,120,1,151,121],[9,69,43,4,70,44],[17,50,22,1,51,23],[2,42,14,19,43,15],[3,141,113,4,142,114],[3,70,44,11,71,45],[17,47,21,4,48,22],[9,39,13,16,40,14],[3,135,107,5,136,108],[3,67,41,13,68,42],[15,54,24,5,55,25],[15,43,15,10,44,16],[4,144,116,4,145,117],[17,68,42],[17,50,22,6,51,23],[19,46,16,6,47,17],[2,139,111,7,140,112],[17,74,46],[7,54,24,16,55,25],[34,37,13],[4,151,121,5,152,122],[4,75,47,14,76,48],[11,54,24,14,55,25],[16,45,15,14,46,16],[6,147,117,4,148,118],[6,73,45,14,74,46],[11,54,24,16,55,25],[30,46,16,2,47,17],[8,132,106,4,133,107],[8,75,47,13,76,48],[7,54,24,22,55,25],[22,45,15,13,46,16],[10,142,114,2,143,115],[19,74,46,4,75,47],[28,50,22,6,51,23],[33,46,16,4,47,17],[8,152,122,4,153,123],[22,73,45,3,74,46],[8,53,23,26,54,24],[12,45,15,28,46,16],[3,147,117,10,148,118],[3,73,45,23,74,46],[4,54,24,31,55,25],[11,45,15,31,46,16],[7,146,116,7,147,117],[21,73,45,7,74,46],[1,53,23,37,54,24],[19,45,15,26,46,16],[5,145,115,10,146,116],[19,75,47,10,76,48],[15,54,24,25,55,25],[23,45,15,25,46,16],[13,145,115,3,146,116],[2,74,46,29,75,47],[42,54,24,1,55,25],[23,45,15,28,46,16],[17,145,115],[10,74,46,23,75,47],[10,54,24,35,55,25],[19,45,15,35,46,16],[17,145,115,1,146,116],[14,74,46,21,75,47],[29,54,24,19,55,25],[11,45,15,46,46,16],[13,145,115,6,146,116],[14,74,46,23,75,47],[44,54,24,7,55,25],[59,46,16,1,47,17],[12,151,121,7,152,122],[12,75,47,26,76,48],[39,54,24,14,55,25],[22,45,15,41,46,16],[6,151,121,14,152,122],[6,75,47,34,76,48],[46,54,24,10,55,25],[2,45,15,64,46,16],[17,152,122,4,153,123],[29,74,46,14,75,47],[49,54,24,10,55,25],[24,45,15,46,46,16],[4,152,122,18,153,123],[13,74,46,32,75,47],[48,54,24,14,55,25],[42,45,15,32,46,16],[20,147,117,4,148,118],[40,75,47,7,76,48],[43,54,24,22,55,25],[10,45,15,67,46,16],[19,148,118,6,149,119],[18,75,47,31,76,48],[34,54,24,34,55,25],[20,45,15,61,46,16]],r=function(t,r){var e={};return e.totalCount=t,e.dataCount=r,e},e={};return e.getRSBlocks=function(e,n){var o=function(r,e){switch(e){case g.L:return t[4*(r-1)+0];case g.M:return t[4*(r-1)+1];case g.Q:return t[4*(r-1)+2];case g.H:return t[4*(r-1)+3];default:return}}(e,n);if(void 0===o)throw"bad rs block @ typeNumber:"+e+"/errorCorrectionLevel:"+n;for(var i=o.length/3,a=[],u=0;u<i;u+=1)for(var f=o[3*u+0],c=o[3*u+1],l=o[3*u+2],h=0;h<f;h+=1)a.push(r(c,l));return a},e}(),b=function(){var t=[],r=0,e={getBuffer:function(){return t},getAt:function(r){var e=Math.floor(r/8);return 1==(t[e]>>>7-r%8&1)},put:function(t,r){for(var n=0;n<r;n+=1)e.putBit(1==(t>>>r-n-1&1))},getLengthInBits:function(){return r},putBit:function(e){var n=Math.floor(r/8);t.length<=n&&t.push(0),e&&(t[n]|=128>>>r%8),r+=1}};return e},M=function(t){var r=a,e=t,n={getMode:function(){return r},getLength:function(t){return e.length},write:function(t){for(var r=e,n=0;n+2<r.length;)t.put(o(r.substring(n,n+3)),10),n+=3;n<r.length&&(r.length-n==1?t.put(o(r.substring(n,n+1)),4):r.length-n==2&&t.put(o(r.substring(n,n+2)),7))}},o=function(t){for(var r=0,e=0;e<t.length;e+=1)r=10*r+i(t.charAt(e));return r},i=function(t){if("0"<=t&&t<="9")return t.charCodeAt(0)-"0".charCodeAt(0);throw"illegal char :"+t};return n},x=function(t){var r=u,e=t,n={getMode:function(){return r},getLength:function(t){return e.length},write:function(t){for(var r=e,n=0;n+1<r.length;)t.put(45*o(r.charAt(n))+o(r.charAt(n+1)),11),n+=2;n<r.length&&t.put(o(r.charAt(n)),6)}},o=function(t){if("0"<=t&&t<="9")return t.charCodeAt(0)-"0".charCodeAt(0);if("A"<=t&&t<="Z")return t.charCodeAt(0)-"A".charCodeAt(0)+10;switch(t){case" ":return 36;case"$":return 37;case"%":return 38;case"*":return 39;case"+":return 40;case"-":return 41;case".":return 42;case"/":return 43;case":":return 44;default:throw"illegal char :"+t}};return n},m=function(r){var e=f,n=t.stringToBytes(r),o={getMode:function(){return e},getLength:function(t){return n.length},write:function(t){for(var r=0;r<n.length;r+=1)t.put(n[r],8)}};return o},L=function(r){var e=c,n=t.stringToBytesFuncs.SJIS;if(!n)throw"sjis not supported.";!function(){var t=n("友");if(2!=t.length||38726!=(t[0]<<8|t[1]))throw"sjis not supported."}();var o=n(r),i={getMode:function(){return e},getLength:function(t){return~~(o.length/2)},write:function(t){for(var r=o,e=0;e+1<r.length;){var n=(255&r[e])<<8|255&r[e+1];if(33088<=n&&n<=40956)n-=33088;else{if(!(57408<=n&&n<=60351))throw"illegal char at "+(e+1)+"/"+n;n-=49472}n=192*(n>>>8&255)+(255&n),t.put(n,13),e+=2}if(e<r.length)throw"illegal char at "+(e+1)}};return i},D=function(){var t=[],r={writeByte:function(r){t.push(255&r)},writeShort:function(t){r.writeByte(t),r.writeByte(t>>>8)},writeBytes:function(t,e,n){e=e||0,n=n||t.length;for(var o=0;o<n;o+=1)r.writeByte(t[o+e])},writeString:function(t){for(var e=0;e<t.length;e+=1)r.writeByte(t.charCodeAt(e))},toByteArray:function(){return t},toString:function(){var r="";r+="[";for(var e=0;e<t.length;e+=1)e>0&&(r+=","),r+=t[e];return r+="]"}};return r},S=function(t){var r=t,e=0,n=0,o=0,i={read:function(){for(;o<8;){if(e>=r.length){if(0==o)return-1;throw"unexpected end of file./"+o}var t=r.charAt(e);if(e+=1,"="==t)return o=0,-1;t.match(/^\s$/)||(n=n<<6|a(t.charCodeAt(0)),o+=6)}var i=n>>>o-8&255;return o-=8,i}},a=function(t){if(65<=t&&t<=90)return t-65;if(97<=t&&t<=122)return t-97+26;if(48<=t&&t<=57)return t-48+52;if(43==t)return 62;if(47==t)return 63;throw"c:"+t};return i},I=function(t,r,e){for(var n=function(t,r){var e=t,n=r,o=new Array(t*r),i={setPixel:function(t,r,n){o[r*e+t]=n},write:function(t){t.writeString("GIF87a"),t.writeShort(e),t.writeShort(n),t.writeByte(128),t.writeByte(0),t.writeByte(0),t.writeByte(0),t.writeByte(0),t.writeByte(0),t.writeByte(255),t.writeByte(255),t.writeByte(255),t.writeString(","),t.writeShort(0),t.writeShort(0),t.writeShort(e),t.writeShort(n),t.writeByte(0);var r=a(2);t.writeByte(2);for(var o=0;r.length-o>255;)t.writeByte(255),t.writeBytes(r,o,255),o+=255;t.writeByte(r.length-o),t.writeBytes(r,o,r.length-o),t.writeByte(0),t.writeString(";")}},a=function(t){for(var r=1<<t,e=1+(1<<t),n=t+1,i=u(),a=0;a<r;a+=1)i.add(String.fromCharCode(a));i.add(String.fromCharCode(r)),i.add(String.fromCharCode(e));var f,c,g,l=D(),h=(f=l,c=0,g=0,{write:function(t,r){if(t>>>r!=0)throw"length over";for(;c+r>=8;)f.writeByte(255&(t<<c|g)),r-=8-c,t>>>=8-c,g=0,c=0;g|=t<<c,c+=r},flush:function(){c>0&&f.writeByte(g)}});h.write(r,n);var s=0,v=String.fromCharCode(o[s]);for(s+=1;s<o.length;){var d=String.fromCharCode(o[s]);s+=1,i.contains(v+d)?v+=d:(h.write(i.indexOf(v),n),i.size()<4095&&(i.size()==1<<n&&(n+=1),i.add(v+d)),v=d)}return h.write(i.indexOf(v),n),h.write(e,n),h.flush(),l.toByteArray()},u=function(){var t={},r=0,e={add:function(n){if(e.contains(n))throw"dup key:"+n;t[n]=r,r+=1},size:function(){return r},indexOf:function(r){return t[r]},contains:function(r){return void 0!==t[r]}};return e};return i}(t,r),o=0;o<r;o+=1)for(var i=0;i<t;i+=1)n.setPixel(i,o,e(i,o));var a=D();n.write(a);for(var u=function(){var t=0,r=0,e=0,n="",o={},i=function(t){n+=String.fromCharCode(a(63&t))},a=function(t){if(t<0);else{if(t<26)return 65+t;if(t<52)return t-26+97;if(t<62)return t-52+48;if(62==t)return 43;if(63==t)return 47}throw"n:"+t};return o.writeByte=function(n){for(t=t<<8|255&n,r+=8,e+=1;r>=6;)i(t>>>r-6),r-=6},o.flush=function(){if(r>0&&(i(t<<6-r),t=0,r=0),e%3!=0)for(var o=3-e%3,a=0;a<o;a+=1)n+="="},o.toString=function(){return n},o}(),f=a.toByteArray(),c=0;c<f.length;c+=1)u.writeByte(f[c]);return u.flush(),"data:image/gif;base64,"+u};return t}();qrcode.stringToBytesFuncs["UTF-8"]=function(t){return function(t){for(var r=[],e=0;e<t.length;e++){var n=t.charCodeAt(e);n<128?r.push(n):n<2048?r.push(192|n>>6,128|63&n):n<55296||n>=57344?r.push(224|n>>12,128|n>>6&63,128|63&n):(e++,n=65536+((1023&n)<<10|1023&t.charCodeAt(e)),r.push(240|n>>18,128|n>>12&63,128|n>>6&63,128|63&n))}return r}(t)},function(t){"function"==typeof define&&define.amd?define([],t):"object"==typeof exports&&(module.exports=t())}(function(){return qrcode});
+</script>
+<script>
+(function(){
+  // ================= CONFIG =================
+  const ADMIN_PASSCODES = {
+    'MJ2L-6FL3': 'Admin 1',
+    '8U0Y-QAXS': 'Admin 2',
+    '32X3-ILF8': 'Admin 3',
+    'J81H-ANMK': 'Admin 4',
+    'Z6HM-HJPV': 'Admin 5'
+  };
+  let currentAdminLabel = '';
+
+  // Default fallback pool cars — used only if Supabase is unreachable on first load.
+  let CARS = [
+    { id:'EV-1', label:'EV 1 — Proton eMas 5 (ABC 1234)', type:'EV', brand:'Proton', model:'eMas 5', plate:'ABC 1234' },
+    { id:'EV-2', label:'EV 2 — Proton eMas 5 (ABC 5678)', type:'EV', brand:'Proton', model:'eMas 5', plate:'ABC 5678' }
+  ];
+
+  // ================= SHAREPOINT (via Power Automate) — source of truth for all data =================
+  // Each list (Bookings / Cars / Approvers) has its own HTTP-triggered flow that does
+  // get / create / update / delete against the matching SharePoint list. This replaces
+  // the old direct-to-Supabase calls. Browser -> flow -> SharePoint List, no login needed
+  // for requesters/approvers, same as before.
+  const SP_BOOKINGS_URL = 'https://defaulte41691d30c4541fd92c76d4d998490.50.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/06/workflows/f3646fdaeba843b8a834853a0c9dc477/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=XwE_ZT5lrlsZRTienK1kHnNK-V1iRzBrqO5azLLC-WM';
+  const SP_CARS_URL = 'https://defaulte41691d30c4541fd92c76d4d998490.50.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/15/workflows/750e55fc7cf6403689ef551fb1e7a0eb/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=VYhEilsk2xO08lFcXYeVmFarvbvzOOOcLcYGmXaNNYk';
+  const SP_APPROVERS_URL = 'https://defaulte41691d30c4541fd92c76d4d998490.50.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/06/workflows/a8fe3a2a34ba4fac955d21dbac80d125/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=USChum-LjNIXx3y6sL2Pabck0iU9_c5JSO8o0uCV9BM';
+
+  // Generic caller for all three SharePoint flows. Uses text/plain like the existing
+  // Power Automate email calls below — avoids a CORS preflight, which these flows
+  // handle poorly.
+  async function spCall(url, payload){
+    try{
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+      });
+      const json = await res.json().catch(function(){ return null; });
+      if(!res.ok){
+        return { ok:false, error:(json && json.error) || 'request_failed', data:null };
+      }
+      return { ok:true, data:json };
+    }catch(err){
+      return { ok:false, error:'network_error', data:null };
+    }
+  }
+
+  // SharePoint import quirks: whichever CSV column came first in each list got absorbed
+  // into SharePoint's built-in "Title" field, and we don't know for certain what casing
+  // SharePoint settled on for the rest. This reads a field defensively — exact name first,
+  // then Capitalized, then a case-insensitive scan — so small naming differences between
+  // the lists and this code don't silently produce blank data.
+  function spField(row, name){
+    if(row[name] !== undefined) return row[name];
+    const cap = name.charAt(0).toUpperCase() + name.slice(1);
+    if(row[cap] !== undefined) return row[cap];
+    const lower = name.toLowerCase();
+    const key = Object.keys(row).filter(function(k){ return k.toLowerCase() === lower; })[0];
+    return key ? row[key] : undefined;
+  }
+
+  // The rest of this app's JS uses camelCase everywhere; these functions are the only
+  // place the translation to/from the SharePoint list's field names happens.
+  // NOTE: in the Bookings list, the first CSV column (staff_name) became the built-in
+  // "Title" field on import — that's why it's singled out below instead of appearing
+  // as a plain snake_case field like the rest.
+  function toSpBooking(b){
+    const str = function(v){ return (v === null || v === undefined) ? '' : String(v); };
+    return {
+      id: b.id,
+      staff_name: b.staffName, department: b.department, company: b.company || '', employee_no: b.employeeNo,
+      licence_expiry_date: b.licenceExpiryDate || '', contact: b.contact,
+      approver_name: b.approverName || '', approver_email: b.approverEmail || '',
+      requester_email: b.requesterEmail,
+      trip_date: b.tripDate || '', return_date: b.returnDate || '',
+      time_out: b.timeOut || '', time_in: b.timeIn || '',
+      destination: b.destination, requested_car_type: b.requestedCarType || '',
+      purpose: b.purpose, car_id: b.carId || '',
+      vehicle_type: b.vehicleType || '', car_brand: b.carBrand || '', car_model: b.carModel || '',
+      odometer_out: str(b.odometerOut), odometer_in: str(b.odometerIn),
+      parking_place_out: b.parkingPlaceOut || '', parking_place_in: b.parkingPlaceIn || '',
+      key_collection_date: b.keyCollectionDate || '',
+      key_return_date: b.keyReturnDate || '',
+      remark: b.remark || '', remark_attachment_link: b.remarkAttachmentLink || '',
+      licence_attachment_link: b.licenceAttachmentLink || '',
+      status: b.status, reject_reason: b.rejectReason || '',
+      submitted_at: b.submittedAt || '', actioned_at: b.actionedAt || '', completed_at: b.completedAt || ''
+    };
+  }
+  function fromSpBooking(row){
+    const str = function(v){ return v == null ? '' : String(v); };
+    return {
+      id: spField(row,'id'), staffName: spField(row,'Title') || '', department: spField(row,'department'),
+      company: spField(row,'company') || '', employeeNo: spField(row,'employee_no'),
+      licenceExpiryDate: spField(row,'licence_expiry_date') || '', contact: spField(row,'contact'),
+      approverName: spField(row,'approver_name') || '', approverEmail: spField(row,'approver_email') || '',
+      requesterEmail: spField(row,'requester_email'),
+      tripDate: spField(row,'trip_date'), returnDate: spField(row,'return_date'),
+      timeOut: spField(row,'time_out'), timeIn: spField(row,'time_in'),
+      destination: spField(row,'destination'), requestedCarType: spField(row,'requested_car_type') || '',
+      purpose: spField(row,'purpose'),
+      carId: spField(row,'car_id') || '', vehicleType: spField(row,'vehicle_type') || '',
+      carBrand: spField(row,'car_brand') || '', carModel: spField(row,'car_model') || '',
+      odometerOut: str(spField(row,'odometer_out')), odometerIn: str(spField(row,'odometer_in')),
+      parkingPlaceOut: spField(row,'parking_place_out') || '', parkingPlaceIn: spField(row,'parking_place_in') || '',
+      keyCollectionDate: spField(row,'key_collection_date') || '',
+      keyReturnDate: spField(row,'key_return_date') || '',
+      remark: spField(row,'remark') || '', remarkAttachmentLink: spField(row,'remark_attachment_link') || '',
+      licenceAttachmentLink: spField(row,'licence_attachment_link') || '',
+      status: spField(row,'status'), rejectReason: spField(row,'reject_reason') || '',
+      submittedAt: spField(row,'submitted_at'), actionedAt: spField(row,'actioned_at') || '', completedAt: spField(row,'completed_at') || ''
+    };
+  }
+  function fromSpCar(row){
+    return {
+      id: spField(row,'Title'), label: spField(row,'label'), type: spField(row,'type'),
+      brand: spField(row,'brand'), model: spField(row,'model'), plate: spField(row,'plate')
+    };
+  }
+  function fromSpApprover(row){
+    return { id: spField(row,'Title'), name: spField(row,'name'), email: spField(row,'email') };
+  }
+
+  // ================= POWER AUTOMATE (kept only for sending Outlook emails and OneDrive
+  // attachment uploads — Supabase above is now the source of truth for all data reads/writes) =================
+  const API_BASE_URL = 'https://defaulte41691d30c4541fd92c76d4d998490.50.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/09/workflows/54278c85df0747fe8c7daa700792c2ac/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=0KD1tIwbf3ZVtDHJV42lMVTDWWH0jpRWwXclHR5gkcc';
+
+  async function apiCall(payload){
+    if(!API_BASE_URL){
+      return { success:false, error:'not_configured' };
+    }
+    try{
+      const res = await fetch(API_BASE_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // avoids CORS preflight (Power Automate handles this poorly)
+        body: JSON.stringify(payload)
+      });
+      const json = await res.json().catch(function(){ return {}; });
+      if(!res.ok || json.success !== true){
+        return { success:false, error: (json && json.error) || 'request_failed' };
+      }
+      return json;
+    }catch(err){
+      return { success:false, error:'network_error' };
+    }
+  }
+  // Fire-and-forget — used only for the email side effects. We never let a Power Automate
+  // hiccup block or fail a Supabase-backed action, since Supabase is now the real source of truth.
+  function notifyViaFlow(payload){
+    apiCall(payload).catch(function(){});
+  }
+
+  async function loadAllBookings(){
+    const res = await spCall(SP_BOOKINGS_URL, { action: 'get' });
+    if(!res.ok || !Array.isArray(res.data)){ console.error('loadAllBookings', res.error); return []; }
+    return res.data.map(fromSpBooking).sort(function(a, b){
+      return (b.submittedAt || '').localeCompare(a.submittedAt || '');
+    });
+  }
+
+  let bookingsCache = [];
+
+  function viewLinkFor(id){
+    return window.location.origin + window.location.pathname + '?id=' + encodeURIComponent(id);
+  }
+  // Use this one specifically in the approver's email — it's what unlocks the Approve/Reject
+  // buttons on the detail page. The requester's own emails should keep using viewLinkFor(),
+  // which is view-only, so a requester can never approve their own request just by having a link.
+  function approverLinkFor(id){
+    return viewLinkFor(id) + '&role=approver';
+  }
+
+  // TEMPORARY — file storage has not been migrated off Supabase yet. Licence and remark
+  // photos still upload here until a SharePoint document-library flow replaces this.
+  // This is the one remaining Supabase connection in the app; everything else (bookings,
+  // cars, approvers) now goes through SharePoint via the flows above.
+  const SUPABASE_URL = 'https://ivjddxqxzklouhuzuxox.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2amRkeHF4emtsb3VodXp1eG94Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY1NjIzMDIsImV4cCI6MjEwMjEzODMwMn0.5v9v21jUdXRcbmr83courezZYzJD_Wf5O4N3s5s1QP4';
+  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // Uploads directly to Supabase Storage (bucket must be public — see setup notes).
+  // Returns the file's public URL, or '' on failure.
+  async function uploadAttachment(file, pathPrefix){
+    const safeExt = (file.name.split('.').pop() || 'bin').toLowerCase().replace(/[^a-z0-9]/g, '');
+    const path = pathPrefix + '_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8) + '.' + safeExt;
+    const { error } = await sb.storage.from('attachments').upload(path, file, { cacheControl: '3600', upsert: false });
+    if(error){ console.error('uploadAttachment', error); return ''; }
+    const { data } = sb.storage.from('attachments').getPublicUrl(path);
+    return data ? data.publicUrl : '';
+  }
+
+  // ================= HELPERS =================
+  function esc(s){
+    const d = document.createElement('div');
+    d.textContent = s == null ? '' : s;
+    return d.innerHTML;
+  }
+  function isExcelSerial(v){
+    // Excel returns a bare number (or numeric string) when it auto-detected a cell as
+    // Date/Time and gave us the raw internal serial instead of the text we sent.
+    if(typeof v === 'number') return true;
+    if(typeof v === 'string' && v.trim() !== '' && /^-?\d+(\.\d+)?$/.test(v.trim())) return true;
+    return false;
+  }
+  function fmtTime(t){
+    if(t == null || t === '') return '';
+    if(isExcelSerial(t)){
+      // The fractional part of an Excel serial is the time of day (0 = midnight, 1 = next midnight).
+      const num = Math.abs(parseFloat(t));
+      const fraction = num - Math.floor(num);
+      let totalMinutes = Math.round(fraction * 24 * 60);
+      if(totalMinutes >= 24 * 60) totalMinutes -= 24 * 60;
+      const hh = Math.floor(totalMinutes / 60);
+      const mm = String(totalMinutes % 60).padStart(2, '0');
+      const ap = hh >= 12 ? 'PM' : 'AM';
+      const h12 = ((hh + 11) % 12) + 1;
+      return h12 + ':' + mm + ' ' + ap;
+    }
+    // Full ISO datetime (another shape Excel sometimes returns for a time value).
+    if(t.indexOf('T') !== -1){
+      const d = new Date(t);
+      if(!isNaN(d.getTime())){
+        const hh = d.getUTCHours();
+        const mm = String(d.getUTCMinutes()).padStart(2, '0');
+        const ap = hh >= 12 ? 'PM' : 'AM';
+        const h12 = ((hh + 11) % 12) + 1;
+        return h12 + ':' + mm + ' ' + ap;
+      }
+    }
+    // Already formatted like "5:28 AM" — just pass it through.
+    if(/am|pm/i.test(t)) return t;
+    const parts = t.split(':');
+    if(parts.length < 2) return t;
+    const hh = parseInt(parts[0], 10);
+    if(isNaN(hh)) return t;
+    const ap = hh >= 12 ? 'PM' : 'AM';
+    const h12 = ((hh + 11) % 12) + 1;
+    return h12 + ':' + parts[1].padStart(2, '0') + ' ' + ap;
+  }
+  function fmtDate(d){
+    if(d == null || d === '') return '';
+    if(isExcelSerial(d)){
+      const serial = parseFloat(d);
+      // Excel's day-0 is 1899-12-30. Only convert if this looks like a real date serial
+      // (large integer part) — a bare fraction like 0.34 is a time-only value with no date.
+      if(Math.floor(serial) > 1000){
+        const ms = Math.round((serial - 25569) * 86400 * 1000);
+        const dt = new Date(ms);
+        if(!isNaN(dt.getTime())) return dt.toLocaleDateString('en-MY', { day:'numeric', month:'short', year:'numeric' });
+      }
+      return '—';
+    }
+    let dt = new Date(d);
+    if(isNaN(dt.getTime())){
+      dt = new Date(d + 'T00:00:00');
+    }
+    if(isNaN(dt.getTime())) return d; // fallback: show the raw value rather than "Invalid Date"
+    return dt.toLocaleDateString('en-MY', { day:'numeric', month:'short', year:'numeric' });
+  }
+  // For fields that store both date and time (e.g. key collection).
+  function fmtDateTime(d){
+    if(d == null || d === '') return '';
+    const dt = new Date(d);
+    if(isNaN(dt.getTime())) return d;
+    return dt.toLocaleDateString('en-MY', { day:'numeric', month:'short', year:'numeric' }) + ', ' + dt.toLocaleTimeString('en-MY', { hour:'numeric', minute:'2-digit' });
+  }
+  // Shows "10 Aug, 8:00 PM–9:00 PM" for a same-day trip, or
+  // "10 Aug 8:00 PM – 11 Aug 7:00 AM" when the return date differs (overnight trip).
+  function formatTripSpan(b){
+    const outPart = fmtDate(b.tripDate) + ' ' + fmtTime(b.timeOut);
+    if(b.returnDate && b.returnDate !== b.tripDate){
+      return outPart + ' – ' + fmtDate(b.returnDate) + ' ' + fmtTime(b.timeIn);
+    }
+    return fmtDate(b.tripDate) + ', ' + fmtTime(b.timeOut) + '–' + fmtTime(b.timeIn);
+  }
+  function statusClass(s){
+    if(s === 'Approved') return 'approved';
+    if(s === 'Rejected') return 'rejected';
+    if(s === 'Completed') return 'completed';
+    return 'pending';
+  }
+  // Takes the full booking (not just carId) so that if the car has since been deleted,
+  // we can still show what it was from the booking's own stored snapshot fields
+  // (captured at the time it was assigned) instead of losing that history entirely.
+  function carLabel(b){
+    if(!b || !b.carId) return 'No car assigned yet';
+    const c = CARS.filter(function(x){ return x.id === b.carId; })[0];
+    if(c) return c.label;
+    const parts = [b.carBrand, b.carModel].filter(Boolean).join(' ');
+    return parts ? parts + ' (car since removed)' : b.carId + ' (car since removed)';
+  }
+  // A car is "in use" while it's attached to a request that's Approved but not yet Completed
+  // (i.e. assigned and out, but not yet returned). Computed live from bookings — no separate
+  // car-status storage needed, so it can never drift out of sync.
+  function isCarAvailable(carId){
+    return !bookingsCache.some(function(b){ return b.carId === carId && b.status === 'Approved'; });
+  }
+  function getLastCompletedForCar(carId){
+    const candidates = bookingsCache
+      .filter(function(b){ return b.carId === carId && b.status === 'Completed'; })
+      .sort(function(a, b){ return (b.completedAt || '').localeCompare(a.completedAt || ''); });
+    return candidates.length ? candidates[0] : null;
+  }
+  let availabilityPage = 1;
+  function renderCarAvailabilityList(){
+    const el = document.getElementById('carAvailabilityList');
+    if(!el) return;
+    if(!CARS.length){
+      el.innerHTML = '<p class="hint">No cars configured yet.</p>';
+      updatePageControls('availability', 1, 1);
+      populateRequestedCarTypeDropdown();
+      return;
+    }
+    const searchInput = document.getElementById('availabilitySearchInput');
+    const statusFilter = document.getElementById('availabilityStatusFilter');
+    const term = searchInput ? searchInput.value.trim().toLowerCase() : '';
+    const status = statusFilter ? statusFilter.value : '';
+    const filtered = CARS.filter(function(c){
+      const matchesTerm = !term || (c.id || '').toLowerCase().indexOf(term) > -1 || (c.label || '').toLowerCase().indexOf(term) > -1 || (c.type || '').toLowerCase().indexOf(term) > -1;
+      const available = isCarAvailable(c.id);
+      const matchesStatus = !status || (status === 'available' && available) || (status === 'inuse' && !available);
+      return matchesTerm && matchesStatus;
+    });
+    if(filtered.length === 0){
+      el.innerHTML = '<p class="hint">No cars match your search.</p>';
+      updatePageControls('availability', 1, 1);
+      populateRequestedCarTypeDropdown();
+      return;
+    }
+    const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+    if(availabilityPage > totalPages) availabilityPage = totalPages;
+    if(availabilityPage < 1) availabilityPage = 1;
+    const pageItems = filtered.slice((availabilityPage - 1) * PAGE_SIZE, availabilityPage * PAGE_SIZE);
+    el.innerHTML = pageItems.map(function(c){
+      const available = isCarAvailable(c.id);
+      return '<div class="booking"><div class="booking-top">' +
+        '<span class="booking-name">' + esc(c.label) + '</span>' +
+        '<span class="badge ' + (available ? 'approved' : 'pending') + '">' + (available ? 'Available' : 'In use') + '</span>' +
+        '</div></div>';
+    }).join('');
+    updatePageControls('availability', availabilityPage, totalPages);
+    populateRequestedCarTypeDropdown();
+  }
+
+  // Keeps the requester's Car Type dropdown identical to the approver's assignment filter —
+  // both derive from the same live list of configured cars, so a new car type shows up for
+  // requesters automatically as soon as an admin adds one.
+  function populateRequestedCarTypeDropdown(){
+    const sel = document.getElementById('requestedCarType');
+    if(!sel) return;
+    const currentVal = sel.value;
+    const types = getDistinctCarTypes();
+    sel.innerHTML = '<option value="" disabled' + (currentVal ? '' : ' selected') + '>Select car type</option>' +
+      types.map(function(t){ return '<option value="' + esc(t) + '">' + esc(t) + '</option>'; }).join('');
+    if(currentVal && types.indexOf(currentVal) > -1){ sel.value = currentVal; }
+  }
+
+  // ================= REQUEST FORM =================
+  const form = document.getElementById('reqForm');
+  const msg = document.getElementById('formMsg');
+  const submitBtn = document.getElementById('submitBtn');
+  const dateInput = document.getElementById('tripDate');
+  const returnDateInput = document.getElementById('returnDate');
+  const employeeNoInput = document.getElementById('employeeNo');
+
+  const licenceAttachmentInput = document.getElementById('licenceAttachment');
+  const removeAttachmentBtn = document.getElementById('removeAttachmentBtn');
+  licenceAttachmentInput.addEventListener('change', function(){
+    const hasFile = licenceAttachmentInput.files && licenceAttachmentInput.files.length;
+    removeAttachmentBtn.style.display = hasFile ? 'inline-block' : 'none';
+    const preview = document.getElementById('licenceAttachmentPreview');
+    preview.innerHTML = hasFile ? fileThumbHtml(licenceAttachmentInput.files[0]) : '';
+  });
+  removeAttachmentBtn.addEventListener('click', function(){
+    licenceAttachmentInput.value = '';
+    removeAttachmentBtn.style.display = 'none';
+    document.getElementById('licenceAttachmentPreview').innerHTML = '';
+  });
+
+  const today = new Date().toISOString().split('T')[0];
+  dateInput.min = today;
+  dateInput.value = today;
+  returnDateInput.min = today;
+  returnDateInput.value = today;
+  document.getElementById('licenceExpiryDate').min = today;
+
+  dateInput.addEventListener('change', function(){
+    returnDateInput.min = dateInput.value;
+    if(returnDateInput.value < dateInput.value){
+      returnDateInput.value = dateInput.value;
+    }
+  });
+
+  async function loadCars(){
+    const res = await spCall(SP_CARS_URL, { action: 'get' });
+    if(res.ok && Array.isArray(res.data) && res.data.length){
+      CARS = res.data.map(fromSpCar);
+    }
+    // If the flow is unreachable, we silently keep the default fallback list.
+    renderCarAvailabilityList();
+  }
+
+  // ================= SEARCH / FILTER / PAGINATION (shared helpers) =================
+  const PAGE_SIZE = 10;
+  let registerPage = 1;
+  let adminPage = 1;
+
+  function matchesSearch(b, term){
+    if(!term) return true;
+    const t = term.toLowerCase();
+    const car = b.carId ? CARS.filter(function(c){ return c.id === b.carId; })[0] : null;
+    const plate = car ? (car.plate || '') : '';
+    const carType = b.vehicleType || b.requestedCarType || (car ? car.type || '' : '');
+    return (b.staffName || '').toLowerCase().indexOf(t) > -1 ||
+      (b.destination || '').toLowerCase().indexOf(t) > -1 ||
+      (b.id || '').toLowerCase().indexOf(t) > -1 ||
+      (b.department || '').toLowerCase().indexOf(t) > -1 ||
+      carType.toLowerCase().indexOf(t) > -1 ||
+      plate.toLowerCase().indexOf(t) > -1;
+  }
+  function getFilteredSorted(term, status){
+    return bookingsCache
+      .filter(function(b){ return matchesSearch(b, term) && (!status || b.status === status); })
+      .sort(function(a, b){ return (b.submittedAt || '').localeCompare(a.submittedAt || ''); });
+  }
+  function updatePageControls(prefix, page, totalPages){
+    const label = document.getElementById(prefix + 'PageLabel');
+    const prevBtn = document.getElementById(prefix + 'PrevBtn');
+    const nextBtn = document.getElementById(prefix + 'NextBtn');
+    if(label) label.textContent = 'Page ' + page + ' of ' + totalPages;
+    if(prevBtn) prevBtn.disabled = page <= 1;
+    if(nextBtn) nextBtn.disabled = page >= totalPages;
+  }
+
+  function renderBookingList(){
+    renderCarAvailabilityList();
+    const list = document.getElementById('bookingList');
+    if(!list) return; // not rendered until Admin view is unlocked
+    if(bookingsCache.length === 0){
+      list.innerHTML = '<div class="empty-state"><svg class="charge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg>No requests logged yet. Be the first to submit one.</div>';
+      updatePageControls('register', 1, 1);
+      return;
+    }
+    const searchInput = document.getElementById('registerSearchInput');
+    const statusFilter = document.getElementById('registerStatusFilter');
+    const term = searchInput ? searchInput.value.trim() : '';
+    const status = statusFilter ? statusFilter.value : '';
+    const filtered = getFilteredSorted(term, status);
+    if(filtered.length === 0){
+      list.innerHTML = '<div class="empty-state">No requests match your search.</div>';
+      updatePageControls('register', 1, 1);
+      return;
+    }
+    const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+    if(registerPage > totalPages) registerPage = totalPages;
+    if(registerPage < 1) registerPage = 1;
+    const pageItems = filtered.slice((registerPage - 1) * PAGE_SIZE, registerPage * PAGE_SIZE);
+    list.innerHTML = pageItems.map(function(b){
+      return '<div class="booking">' +
+        '<div class="booking-top">' +
+          '<span class="booking-name">' + esc(b.staffName || 'Staff') + '</span>' +
+          '<span class="booking-time">' + esc(formatTripSpan(b)) + '</span>' +
+        '</div>' +
+        '<div class="booking-dest">' + esc(b.destination || '') + '</div>' +
+        '<span class="badge car1">' + esc(carLabel(b)) + '</span>' +
+        '<span class="badge ' + statusClass(b.status) + '">' + esc(b.status || 'Pending') + '</span>' +
+      '</div>';
+    }).join('');
+    updatePageControls('register', registerPage, totalPages);
+  }
+
+  async function refreshData(){
+    bookingsCache = await loadAllBookings();
+    renderBookingList();
+  }
+
+  form.addEventListener('submit', async function(e){
+    e.preventDefault();
+    msg.className = 'msg';
+
+    if(!form.checkValidity()){
+      form.reportValidity();
+      return;
+    }
+
+    const tripDate = document.getElementById('tripDate').value;
+    const returnDate = document.getElementById('returnDate').value;
+    const timeOut = document.getElementById('timeOut').value;
+    const timeIn = document.getElementById('timeIn').value;
+    if(returnDate < tripDate){
+      msg.className = 'msg err';
+      msg.textContent = 'Return date cannot be before the date required.';
+      return;
+    }
+    if(returnDate === tripDate && timeOut && timeIn && timeIn <= timeOut){
+      msg.className = 'msg err';
+      msg.textContent = 'Expected time in must be after time out on the same day. If returning the next day, pick a later return date.';
+      return;
+    }
+
+    const data = {
+      staffName: document.getElementById('staffName').value.trim(),
+      department: document.getElementById('department').value.trim(),
+      company: document.getElementById('company').value.trim(),
+      employeeNo: document.getElementById('employeeNo').value.trim(),
+      licenceExpiryDate: document.getElementById('licenceExpiryDate').value,
+      contact: document.getElementById('contact').value.trim(),
+      requesterEmail: document.getElementById('requesterEmail').value.trim(),
+      tripDate: tripDate,
+      returnDate: returnDate,
+      timeOut: timeOut,
+      timeIn: timeIn,
+      destination: document.getElementById('destination').value.trim(),
+      requestedCarType: document.getElementById('requestedCarType').value,
+      purpose: document.getElementById('purpose').value.trim(),
+      carId: '',
+      vehicleType: '',
+      carBrand: '',
+      carModel: '',
+      odometerOut: '',
+      odometerIn: '',
+      parkingPlaceOut: '',
+      parkingPlaceIn: '',
+      keyCollectionDate: '',
+      keyReturnDate: '',
+      remark: '',
+      remarkAttachmentLink: '',
+      licenceAttachmentLink: '',
+      status: 'Pending',
+      rejectReason: '',
+      submittedAt: new Date().toISOString(),
+      actionedAt: '',
+      completedAt: ''
+    };
+
+    const id = 'REQ-' + Date.now().toString(36).toUpperCase();
+    const fileInput = document.getElementById('licenceAttachment');
+    renderReviewScreen(data, id, fileInput);
+  });
+
+  function fileThumbHtml(file){
+    if(!file) return '';
+    const url = URL.createObjectURL(file);
+    if(file.type && file.type.indexOf('image/') === 0){
+      return '<a href="' + url + '" target="_blank" rel="noopener" title="Open full size">' +
+        '<img src="' + url + '" alt="' + esc(file.name) + '" style="width:64px;height:64px;object-fit:cover;border-radius:6px;border:1px solid var(--line);flex:0 0 auto;">' +
+      '</a>';
+    }
+    const ext = (file.name.split('.').pop() || 'FILE').toUpperCase();
+    return '<a href="' + url + '" target="_blank" rel="noopener" title="Open file" style="text-decoration:none;">' +
+      '<div style="width:64px;height:64px;border-radius:6px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--ink-soft);background:#f5f5f0;flex:0 0 auto;">' + esc(ext) + '</div>' +
+    '</a>';
+  }
+  // For files already uploaded (Supabase Storage public URLs) — used in the detail view.
+  function linkThumbHtml(url, label){
+    if(!url) return '';
+    const isPdf = /\.pdf($|\?)/i.test(url);
+    if(isPdf){
+      return '<a href="' + esc(url) + '" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;margin-left:8px;vertical-align:middle;">' +
+        '<span style="width:40px;height:40px;border-radius:6px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--ink-soft);background:#f5f5f0;">PDF</span>' +
+        '<span>' + esc(label) + '</span></a>';
+    }
+    return '<a href="' + esc(url) + '" target="_blank" rel="noopener" style="display:inline-block;margin-left:8px;vertical-align:middle;" title="' + esc(label) + '">' +
+      '<img src="' + esc(url) + '" alt="' + esc(label) + '" style="width:40px;height:40px;object-fit:cover;border-radius:6px;border:1px solid var(--line);">' +
+    '</a>';
+  }
+
+  function renderReviewScreen(data, id, fileInput){
+    const file = fileInput.files && fileInput.files[0] ? fileInput.files[0] : null;
+    const reviewCard = document.getElementById('reviewCard');
+    reviewCard.innerHTML =
+      '<p class="section-title">Review your request</p>' +
+      '<p class="section-sub">Check everything looks right before submitting — click Edit to go back, your answers are still there.</p>' +
+      '<div class="detail-row"><span class="k">Staff</span><span class="v">' + esc(data.staffName) + ' · ' + esc(data.department) + '</span></div>' +
+      '<div class="detail-row"><span class="k">Company</span><span class="v">' + esc(data.company) + '</span></div>' +
+      '<div class="detail-row"><span class="k">Employee no.</span><span class="v">' + esc(data.employeeNo) + '</span></div>' +
+      '<div class="detail-row"><span class="k">Contact</span><span class="v">' + esc(data.contact) + '</span></div>' +
+      '<div class="detail-row"><span class="k">Driving licence expiry</span><span class="v">' + esc(fmtDate(data.licenceExpiryDate)) + '</span></div>' +
+      '<div class="detail-row"><span class="k">Your email</span><span class="v">' + esc(data.requesterEmail) + '</span></div>' +
+      '<div class="detail-row"><span class="k">Date and Time</span><span class="v">' + esc(fmtDate(data.tripDate)) + ', ' + esc(fmtTime(data.timeOut)) + '</span></div>' +
+      '<div class="detail-row"><span class="k">Return date and time</span><span class="v">' + esc(fmtDate(data.returnDate)) + ', ' + esc(fmtTime(data.timeIn)) + '</span></div>' +
+      '<div class="detail-row"><span class="k">Destination</span><span class="v">' + esc(data.destination) + '</span></div>' +
+      '<div class="detail-row"><span class="k">Car type</span><span class="v">' + esc(data.requestedCarType) + '</span></div>' +
+      '<div class="detail-row"><span class="k">Purpose</span><span class="v">' + esc(data.purpose) + '</span></div>' +
+      '<div class="detail-row"><span class="k">Attachment</span><span class="v">' +
+        (file ? '<div style="display:flex;align-items:center;gap:10px;justify-content:flex-end;">' + fileThumbHtml(file) + '<span>' + esc(file.name) + '</span></div>' : 'None attached') +
+      '</span></div>' +
+      '<div class="submit-row" style="margin-top:16px;">' +
+        '<button class="primary" id="confirmSubmitBtn" type="button">Confirm & submit</button>' +
+        '<button class="ghost" id="editRequestBtn" type="button">Edit</button>' +
+      '</div>';
+
+    document.getElementById('editRequestBtn').addEventListener('click', function(){
+      showView('request');
+    });
+    document.getElementById('confirmSubmitBtn').addEventListener('click', async function(){
+      const btn = document.getElementById('confirmSubmitBtn');
+      btn.disabled = true;
+      btn.textContent = 'Submitting…';
+      await confirmSubmission(data, id, fileInput, btn);
+    });
+    showView('review');
+  }
+
+  async function confirmSubmission(data, id, fileInput, btn){
+    try{
+      let attachmentNote = '';
+      if(fileInput.files && fileInput.files[0]){
+        if(btn) btn.textContent = 'Uploading attachment…';
+        try{
+          const link = await uploadAttachment(fileInput.files[0], id + '_licence');
+          data.licenceAttachmentLink = link || '';
+          if(!link){ attachmentNote = ' Your licence attachment did not upload — please send it to Administration separately.'; }
+        }catch(err){
+          attachmentNote = ' Your licence attachment did not upload — please send it to Administration separately.';
+        }
+      }
+      if(btn) btn.textContent = 'Submitting…';
+      const record = Object.assign({ id: id }, data);
+      const createRes = await spCall(SP_BOOKINGS_URL, { action: 'create', booking: toSpBooking(record) });
+
+      if(!createRes.ok){
+        console.error('create booking', createRes.error);
+        alert('Something went wrong saving your request. Please try again.');
+        if(btn){ btn.disabled = false; btn.textContent = 'Confirm & submit'; }
+        return;
+      }
+      form.reset();
+      dateInput.value = today;
+      returnDateInput.min = today;
+      returnDateInput.value = today;
+      removeAttachmentBtn.style.display = 'none';
+      document.getElementById('licenceAttachmentPreview').innerHTML = '';
+      // The booking itself is already saved (above). This is just for the emails —
+      // if Power Automate hiccups, the request still exists and nothing is lost.
+      notifyViaFlow({ action: 'create', booking: record });
+      await refreshData();
+      showView('request');
+      msg.className = 'msg ok';
+      msg.innerHTML = 'Request submitted — reference ' + esc(id) + '. A confirmation email and an approval request are on their way.' + attachmentNote +
+        '<div class="msg-actions"><a class="mailto-btn" href="' + esc(viewLinkFor(id)) + '">View your request →</a></div>';
+    }catch(err){
+      alert('Something went wrong saving your request. Please try again.');
+      if(btn){ btn.disabled = false; btn.textContent = 'Confirm & submit'; }
+    }
+  }
+
+  // ================= SHARED STATUS / ODOMETER ACTIONS =================
+  // SharePoint is now the source of truth for these writes. Unlike the old Supabase
+  // .update(patch) calls (which only sent the changed columns), the flow's "Update item"
+  // step maps EVERY field on every update — so every function below builds the FULL,
+  // current booking object (merging in whatever changed) and sends that whole thing.
+  // Sending a partial object here would blank out every field the flow doesn't touch.
+  // Polling (set up further below) pushes the change to other open tabs within ~15s —
+  // SharePoint has no instant-push equivalent to Supabase Realtime.
+  async function spUpdateFullBooking(fullBooking){
+    const res = await spCall(SP_BOOKINGS_URL, { action: 'update', booking: toSpBooking(fullBooking) });
+    return res.ok;
+  }
+
+  // `extra` carries whatever additional fields this status change needs to persist —
+  // car assignment fields when approving, or a reason when rejecting.
+  async function setStatus(id, newStatus, extra){
+    extra = extra || {};
+    const existing = bookingsCache.filter(function(b){ return b.id === id; })[0];
+    if(!existing){ console.error('setStatus: booking not found in cache', id); return null; }
+    const actionedAt = new Date().toISOString();
+    const merged = Object.assign({}, existing, extra, { status: newStatus, actionedAt: actionedAt });
+    const ok = await spUpdateFullBooking(merged);
+    if(!ok){ console.error('setStatus failed'); return null; }
+    const idx = bookingsCache.findIndex(function(b){ return b.id === id; });
+    if(idx > -1){
+      bookingsCache[idx] = merged;
+    }
+    // The status change is already saved (above) — this is just for the decision email.
+    // We include requesterEmail/staffName directly here so Power Automate no longer
+    // needs to look them up from Excel at all.
+    notifyViaFlow(Object.assign({
+      action: 'updateStatus', id: id, status: newStatus,
+      requesterEmail: existing.requesterEmail,
+      staffName: existing.staffName
+    }, extra));
+    return idx > -1 ? bookingsCache[idx] : null;
+  }
+
+  // Called when an approved request's key is physically collected. Must be saved before
+  // the return-details form unlocks (see renderDetail's gating logic). No email is tied
+  // to this step.
+  async function saveKeyCollectionDate(id, keyCollectionDate){
+    const existing = bookingsCache.filter(function(b){ return b.id === id; })[0];
+    if(!existing){ console.error('saveKeyCollectionDate: booking not found in cache', id); return null; }
+    const merged = Object.assign({}, existing, { keyCollectionDate: keyCollectionDate });
+    const ok = await spUpdateFullBooking(merged);
+    if(!ok){ console.error('saveKeyCollectionDate failed'); return null; }
+    const idx = bookingsCache.findIndex(function(b){ return b.id === id; });
+    if(idx > -1){
+      bookingsCache[idx] = merged;
+      return bookingsCache[idx];
+    }
+    return null;
+  }
+
+  // Called when the requester returns the car: odometer-in and parking-place-in are required,
+  // remark (text and/or photo) is optional. This is what finally marks the request Completed
+  // and frees the car back up for the next request.
+  async function saveReturn(id, keyReturnDate, odometerIn, parkingPlaceIn, remark, remarkAttachmentLink){
+    const existing = bookingsCache.filter(function(b){ return b.id === id; })[0];
+    if(!existing){ console.error('saveReturn: booking not found in cache', id); return null; }
+    const completedAt = new Date().toISOString();
+    const merged = Object.assign({}, existing, {
+      keyReturnDate: keyReturnDate || '',
+      odometerIn: odometerIn,
+      parkingPlaceIn: parkingPlaceIn,
+      remark: remark || '',
+      remarkAttachmentLink: remarkAttachmentLink || '',
+      status: 'Completed',
+      completedAt: completedAt
+    });
+    const ok = await spUpdateFullBooking(merged);
+    if(!ok){ console.error('saveReturn failed'); return null; }
+    const idx = bookingsCache.findIndex(function(b){ return b.id === id; });
+    if(idx > -1){
+      bookingsCache[idx] = merged;
+      // If the requester left a remark or attached photos on return, flag it to the
+      // approver so they can review it — e.g. a note about minor damage.
+      if(remark || remarkAttachmentLink){
+        notifyViaFlow({
+          action: 'notifyRemark',
+          id: id,
+          staffName: bookingsCache[idx].staffName,
+          approverName: bookingsCache[idx].approverName,
+          approverEmail: bookingsCache[idx].approverEmail,
+          remark: remark || '',
+          hasPhotos: !!remarkAttachmentLink
+        });
+      }
+      return bookingsCache[idx];
+    }
+    return null;
+  }
+
+  // Admin-only: reassign the car after approval (e.g. it was urgently needed elsewhere
+  // mid-trip). Recomputes odometer-out/parking-out from the new car's own last completed
+  // trip, same baseline logic used at initial assignment. Does not touch status/actionedAt.
+  async function updateAssignedCar(id, newCarId){
+    const existing = bookingsCache.filter(function(b){ return b.id === id; })[0];
+    if(!existing){ console.error('updateAssignedCar: booking not found in cache', id); return null; }
+    const carMeta = CARS.filter(function(c){ return c.id === newCarId; })[0] || {};
+    const lastCompleted = getLastCompletedForCar(newCarId);
+    const odometerOut = lastCompleted && lastCompleted.odometerIn !== '' ? Number(lastCompleted.odometerIn) : null;
+    const parkingPlaceOut = lastCompleted ? (lastCompleted.parkingPlaceIn || '') : '';
+    const merged = Object.assign({}, existing, {
+      carId: newCarId,
+      vehicleType: carMeta.type || '',
+      carBrand: carMeta.brand || '',
+      carModel: carMeta.model || '',
+      odometerOut: odometerOut == null ? '' : String(odometerOut),
+      parkingPlaceOut: parkingPlaceOut
+    });
+    const ok = await spUpdateFullBooking(merged);
+    if(!ok){ console.error('updateAssignedCar failed'); return null; }
+    const idx = bookingsCache.findIndex(function(b){ return b.id === id; });
+    if(idx > -1){
+      bookingsCache[idx] = merged;
+      return bookingsCache[idx];
+    }
+    return null;
+  }
+
+  // ================= QR + URL SHARE =================
+  const qrImg = document.getElementById('qrImg');
+  const pageUrl = document.getElementById('pageUrl');
+  const copyUrlBtn = document.getElementById('copyUrlBtn');
+  const currentUrl = window.location.origin + window.location.pathname;
+  pageUrl.value = currentUrl;
+  try{
+    const qr = qrcode(0, 'M');
+    qr.addData(currentUrl);
+    qr.make();
+    qrImg.innerHTML = qr.createSvgTag({ scalable: true });
+    const svgEl = qrImg.querySelector('svg');
+    if(svgEl){ svgEl.style.width = '100%'; svgEl.style.height = '100%'; }
+  }catch(e){
+    qrImg.innerHTML = '<span style="font-size:10px;color:var(--ink-faint);text-align:center;padding:8px;">QR unavailable</span>';
+  }
+  copyUrlBtn.addEventListener('click', function(){
+    pageUrl.select();
+    navigator.clipboard && navigator.clipboard.writeText(currentUrl).catch(function(){});
+    copyUrlBtn.textContent = 'Copied';
+    setTimeout(function(){ copyUrlBtn.textContent = 'Copy'; }, 1500);
+  });
+
+  // ================= TABS =================
+  const tabRequestBtn = document.getElementById('tabRequestBtn');
+  const tabAdminBtn = document.getElementById('tabAdminBtn');
+  const viewRequest = document.getElementById('viewRequest');
+  const viewAdmin = document.getElementById('viewAdmin');
+  const viewDetail = document.getElementById('viewDetail');
+  const viewReview = document.getElementById('viewReview');
+
+  function showView(name){
+    viewRequest.classList.toggle('active', name === 'request');
+    viewAdmin.classList.toggle('active', name === 'admin');
+    viewDetail.classList.toggle('active', name === 'detail');
+    viewReview.classList.toggle('active', name === 'review');
+    tabRequestBtn.classList.toggle('active', name === 'request');
+    tabAdminBtn.classList.toggle('active', name === 'admin');
+  }
+
+  // ================= LINK MODE (requester vs admin) =================
+  // Two distinct URLs to hand out: the plain link is requester-only (no way to reach
+  // Admin at all); appending ?admin=1 opens straight into the Admin view instead, with
+  // no way to reach the request form. Both still share the same file/codebase — the
+  // ?id=... detail view (used by both requester and approver/admin email links) works
+  // the same regardless of which mode the base URL is in.
+  const IS_ADMIN_LINK = new URLSearchParams(window.location.search).get('admin') === '1';
+  const tabsBar = document.querySelector('.tabs');
+  if(tabsBar) tabsBar.style.display = 'none';
+  if(IS_ADMIN_LINK){
+    showView('admin');
+  }else{
+    showView('request');
+  }
+  tabRequestBtn.addEventListener('click', function(){
+    history.replaceState(null, '', window.location.pathname);
+    showView('request');
+  });
+  tabAdminBtn.addEventListener('click', function(){ showView('admin'); });
+
+  // ================= REQUEST DETAIL VIEW (reached via ?id=...) =================
+  const detailCard = document.getElementById('detailCard');
+
+  // Shared source of truth for distinct car types — Pickup is deliberately excluded system-wide.
+  function getDistinctCarTypes(){
+    return Array.from(new Set(CARS.map(function(c){ return c.type; }).filter(Boolean)))
+      .filter(function(t){ return t.toLowerCase() !== 'pickup'; });
+  }
+  function buildCarTypeOptionsHtml(){
+    const types = getDistinctCarTypes();
+    return '<option value="">All types</option>' + types.map(function(t){
+      return '<option value="' + esc(t) + '">' + esc(t) + '</option>';
+    }).join('');
+  }
+  function buildCarOptionsHtml(typeFilter){
+    const filtered = CARS.filter(function(c){
+      return isCarAvailable(c.id) && (!typeFilter || c.type === typeFilter);
+    });
+    if(!filtered.length) return '<option value="" disabled selected>No available cars of this type</option>';
+    return '<option value="" disabled selected>Select car</option>' + filtered.map(function(c){
+      return '<option value="' + esc(c.id) + '">' + esc(c.label) + '</option>';
+    }).join('');
+  }
+
+  function renderDetail(b, isApprover, actingApprover, isAdmin){
+    if(!b){
+      detailCard.innerHTML = '<p class="section-title">Request not found</p>' +
+        '<p class="section-sub">This request ID doesn\'t match anything in the register.</p>' +
+        '<button class="ghost" id="detailBackBtn" type="button">Back to form</button>';
+      document.getElementById('detailBackBtn').addEventListener('click', function(){
+        history.replaceState(null, '', window.location.pathname);
+        showView('request');
+      });
+      return;
+    }
+    let actionHtml = '';
+    if(b.status === 'Pending'){
+      if(isApprover){
+        actionHtml = '<div id="approveSection" style="margin-top:16px;">' +
+          '<p class="section-title" style="font-size:14px;margin-bottom:8px;">Assign a car to approve</p>' +
+          '<div class="grid2">' +
+            '<div class="field"><label for="carTypeFilter">Car type</label><select id="carTypeFilter">' + buildCarTypeOptionsHtml() + '</select></div>' +
+            '<div class="field"><label class="req" for="carAssignSelect">Available car</label><select id="carAssignSelect">' + buildCarOptionsHtml('') + '</select></div>' +
+          '</div>' +
+          '<div id="carAssignPreview"></div>' +
+          '<div class="submit-row" style="margin-top:8px;">' +
+            '<button class="primary" id="confirmApproveBtn" type="button">Confirm approval</button>' +
+          '</div>' +
+          '</div>' +
+          '<div style="margin-top:16px;">' +
+            '<button class="danger" id="rejectBtn" type="button">Reject instead</button>' +
+            '<div id="rejectReasonBox" style="display:none;margin-top:10px;">' +
+              '<div class="field"><label class="req" for="rejectReasonInput">Reason for rejection</label><textarea id="rejectReasonInput" placeholder="e.g. Overlaps with scheduled maintenance"></textarea></div>' +
+              '<div class="submit-row">' +
+                '<button class="danger" id="confirmRejectBtn" type="button">Confirm rejection</button>' +
+                '<button class="ghost" id="cancelRejectBtn" type="button">Cancel</button>' +
+              '</div>' +
+            '</div>' +
+          '</div>';
+      }else{
+        actionHtml = '<p class="hint" style="margin-top:16px;">' + (b.approverName ? 'Awaiting approval from ' + esc(b.approverName) + '.' : 'Awaiting approval.') + '</p>';
+      }
+    }else if(b.status === 'Approved' && !b.keyCollectionDate){
+      actionHtml = '<div style="margin-top:16px;">' +
+        '<p class="section-title" style="font-size:14px;margin-bottom:8px;">Select key collection date</p>' +
+        '<p class="hint" style="margin-bottom:10px;">Save this first — you\'ll be able to enter odometer, parking, and remarks after.</p>' +
+        '<div class="field"><label class="req" for="keyCollectionDateInput">Key collection date & time</label><input type="datetime-local" id="keyCollectionDateInput"></div>' +
+        '<button class="primary" id="saveKeyDateBtn" type="button">Save key collection date</button>' +
+        '</div>';
+    }else if(b.status === 'Approved' && b.keyCollectionDate){
+      actionHtml = '<div style="margin-top:16px;">' +
+        '<p class="section-title" style="font-size:14px;margin-bottom:8px;">Trip completed — return details</p>' +
+        '<div class="field"><label class="req" for="keyReturnDateInput">Key return date & time</label><input type="datetime-local" id="keyReturnDateInput"></div>' +
+        '<div class="grid2">' +
+          '<div class="field"><label class="req" for="odoInInput">Odometer in (km)</label><input type="number" id="odoInInput" min="0" placeholder="e.g. 18475"></div>' +
+          '<div class="field"><label class="req" for="parkingInInput">Parking place</label><input type="text" id="parkingInInput" placeholder="e.g. B2"></div>' +
+        '</div>' +
+        '<div class="field"><label for="remarkInput">Remark <span class="hint">(optional — note any issue, e.g. minor damage)</span></label><textarea id="remarkInput" placeholder="e.g. Minor scratch on rear bumper"></textarea></div>' +
+        '<div class="field"><label for="remarkAttachment">Remark photos <span class="hint">(optional — you can select more than one)</span></label><input type="file" id="remarkAttachment" accept="image/*" multiple><div id="remarkFileList" style="margin-top:8px;"></div></div>' +
+        '<button class="primary" id="saveOdoBtn" type="button">Save return details</button>' +
+        '</div>';
+    }
+
+    // Admin-only, regardless of the sections above: lets an admin reassign the car after
+    // the fact (e.g. someone else urgently needed the originally assigned car). Requesters
+    // and approvers-via-email never see this — only someone on a role=admin link does.
+    if(isAdmin && b.carId && (b.status === 'Approved' || b.status === 'Completed')){
+      actionHtml += '<div style="margin-top:16px;border-top:1px solid var(--line);padding-top:16px;">' +
+        '<p class="section-title" style="font-size:14px;margin-bottom:8px;">Admin: reassign car</p>' +
+        '<p class="hint" style="margin-bottom:10px;">For rare cases — e.g. this car was urgently needed elsewhere mid-trip.</p>' +
+        '<div class="grid2">' +
+          '<div class="field"><label for="adminCarTypeFilter">Car type</label><select id="adminCarTypeFilter">' + buildCarTypeOptionsHtml() + '</select></div>' +
+          '<div class="field"><label class="req" for="adminCarAssignSelect">New car</label><select id="adminCarAssignSelect">' + buildCarOptionsHtml('') + '</select></div>' +
+        '</div>' +
+        '<div id="adminCarAssignPreview"></div>' +
+        '<button class="primary" id="confirmCarReassignBtn" type="button">Reassign car</button>' +
+        '</div>';
+    }
+
+    detailCard.innerHTML =
+      '<p class="section-title">Request ' + esc(b.id) + '</p>' +
+      '<p class="section-sub">Status: <span class="badge ' + statusClass(b.status) + '">' + esc(b.status) + '</span></p>' +
+      '<p class="hint" style="text-transform:uppercase;letter-spacing:.5px;font-size:11px;margin-bottom:4px;">Requester information</p>' +
+      '<div class="detail-row"><span class="k">Staff</span><span class="v">' + esc(b.staffName) + ' · ' + esc(b.department) + '</span></div>' +
+      '<div class="detail-row"><span class="k">Company</span><span class="v">' + esc(b.company || '—') + '</span></div>' +
+      '<div class="detail-row"><span class="k">Employee no.</span><span class="v">' + esc(b.employeeNo) + '</span></div>' +
+      '<div class="detail-row"><span class="k">Contact</span><span class="v">' + esc(b.contact) + '</span></div>' +
+      '<div class="detail-row"><span class="k">Driving licence expiry</span><span class="v">' + esc(fmtDate(b.licenceExpiryDate) || '—') + '</span></div>' +
+      '<div class="detail-row"><span class="k">Date and Time</span><span class="v">' + esc(fmtDate(b.tripDate)) + ', ' + esc(fmtTime(b.timeOut)) + '</span></div>' +
+      '<div class="detail-row"><span class="k">Return date and time</span><span class="v">' + esc(fmtDate(b.returnDate)) + ', ' + esc(fmtTime(b.timeIn)) + '</span></div>' +
+      '<div class="detail-row"><span class="k">Destination</span><span class="v">' + esc(b.destination) + '</span></div>' +
+      '<div class="detail-row"><span class="k">Car type requested</span><span class="v">' + esc(b.requestedCarType || '—') + '</span></div>' +
+      '<div class="detail-row" style="border-bottom:2px solid var(--navy);padding-bottom:12px;"><span class="k">Purpose</span><span class="v">' + esc(b.purpose) + '</span></div>' +
+      '<p class="hint" style="text-transform:uppercase;letter-spacing:.5px;font-size:11px;margin:14px 0 4px;">Approval information</p>' +
+      '<div class="detail-row"><span class="k">Approver</span><span class="v">' + (b.approverName || b.approverEmail ? esc(b.approverName) + (b.approverEmail ? ' (' + esc(b.approverEmail) + ')' : '') : 'Routed to all configured approvers') + '</span></div>' +
+      '<div class="detail-row"><span class="k">Car assigned</span><span class="v">' + esc(carLabel(b)) + '</span></div>' +
+      '<div class="detail-row"><span class="k">Odometer out</span><span class="v">' + esc(b.odometerOut || '—') + '</span></div>' +
+      '<div class="detail-row"><span class="k">Odometer in</span><span class="v">' + esc(b.odometerIn || '—') + '</span></div>' +
+      '<div class="detail-row"><span class="k">Parking out</span><span class="v">' + esc(b.parkingPlaceOut || '—') + '</span></div>' +
+      '<div class="detail-row"><span class="k">Parking in</span><span class="v">' + esc(b.parkingPlaceIn || '—') + '</span></div>' +
+      '<div class="detail-row"><span class="k">Key collection date</span><span class="v">' + esc(fmtDateTime(b.keyCollectionDate) || '—') + '</span></div>' +
+      '<div class="detail-row"><span class="k">Key return date and time</span><span class="v">' + esc(fmtDateTime(b.keyReturnDate) || '—') + '</span></div>' +
+      (b.remark ? '<div class="detail-row"><span class="k">Remark</span><span class="v">' + esc(b.remark) + '</span></div>' : '') +
+      (b.remarkAttachmentLink ? '<div class="detail-row"><span class="k">Remark photos</span><span class="v">' + b.remarkAttachmentLink.split('|').filter(Boolean).map(function(link, i){ return linkThumbHtml(link, 'Photo ' + (i + 1)); }).join('') + '</span></div>' : '') +
+      (b.status === 'Rejected' && b.rejectReason ? '<div class="detail-row"><span class="k">Reason for rejection</span><span class="v">' + esc(b.rejectReason) + '</span></div>' : '') +
+      (b.licenceAttachmentLink ? '<div class="detail-row"><span class="k">Attachment</span><span class="v">' + linkThumbHtml(b.licenceAttachmentLink, 'View file') + '</span></div>' : '') +
+      actionHtml +
+      '<div class="submit-row" style="margin-top:16px;"><button class="ghost" id="detailBackBtn" type="button">Back to form</button></div>';
+
+    document.getElementById('detailBackBtn').addEventListener('click', function(){
+      history.replaceState(null, '', window.location.pathname);
+      showView('request');
+    });
+
+    const carTypeFilter = document.getElementById('carTypeFilter');
+    const carAssignSelect = document.getElementById('carAssignSelect');
+    const carAssignPreview = document.getElementById('carAssignPreview');
+    function updateCarAssignPreview(){
+      if(!carAssignPreview) return;
+      const carId = carAssignSelect.value;
+      if(!carId){ carAssignPreview.innerHTML = ''; return; }
+      const lastCompleted = getLastCompletedForCar(carId);
+      carAssignPreview.innerHTML =
+        '<div class="detail-row"><span class="k">Odometer out</span><span class="v">' + esc(lastCompleted ? lastCompleted.odometerIn : 'First trip for this car') + '</span></div>' +
+        '<div class="detail-row"><span class="k">Parking out</span><span class="v">' + esc(lastCompleted ? lastCompleted.parkingPlaceIn : 'First trip for this car') + '</span></div>';
+    }
+    if(carTypeFilter && carAssignSelect){
+      carTypeFilter.addEventListener('change', function(){
+        carAssignSelect.innerHTML = buildCarOptionsHtml(carTypeFilter.value);
+        updateCarAssignPreview();
+      });
+      carAssignSelect.addEventListener('change', updateCarAssignPreview);
+      updateCarAssignPreview();
+    }
+    const confirmApproveBtn = document.getElementById('confirmApproveBtn');
+    if(confirmApproveBtn){
+      confirmApproveBtn.addEventListener('click', async function(){
+        const carId = carAssignSelect.value;
+        if(!carId){ alert('Please select a car to assign.'); return; }
+        if(!confirm('Approve request ' + b.id + ' and assign this car?')) return;
+        const carMeta = CARS.filter(function(c){ return c.id === carId; })[0] || {};
+        const lastCompleted = getLastCompletedForCar(carId);
+        const extra = {
+          carId: carId,
+          vehicleType: carMeta.type || '',
+          carBrand: carMeta.brand || '',
+          carModel: carMeta.model || '',
+          odometerOut: lastCompleted ? lastCompleted.odometerIn : '',
+          parkingPlaceOut: lastCompleted ? lastCompleted.parkingPlaceIn : ''
+        };
+        if(actingApprover){
+          extra.approverName = actingApprover.name;
+          extra.approverEmail = actingApprover.email;
+        }
+        confirmApproveBtn.disabled = true;
+        confirmApproveBtn.textContent = 'Approving…';
+        const updated = await setStatus(b.id, 'Approved', extra);
+        if(!updated){
+          alert('Something went wrong saving this — the connection may be slow or the request timed out. Please try again in a moment.');
+          confirmApproveBtn.disabled = false;
+          confirmApproveBtn.textContent = 'Confirm approval';
+          return;
+        }
+        renderDetail(updated, isApprover, actingApprover, isAdmin);
+        renderBookingList();
+      });
+    }
+    const rejectBtn = document.getElementById('rejectBtn');
+    const rejectReasonBox = document.getElementById('rejectReasonBox');
+    if(rejectBtn){
+      rejectBtn.addEventListener('click', function(){
+        rejectReasonBox.style.display = 'block';
+        rejectBtn.style.display = 'none';
+      });
+    }
+    const cancelRejectBtn = document.getElementById('cancelRejectBtn');
+    if(cancelRejectBtn){
+      cancelRejectBtn.addEventListener('click', function(){
+        rejectReasonBox.style.display = 'none';
+        rejectBtn.style.display = 'inline-block';
+      });
+    }
+    const confirmRejectBtn = document.getElementById('confirmRejectBtn');
+    if(confirmRejectBtn){
+      confirmRejectBtn.addEventListener('click', async function(){
+        const reason = document.getElementById('rejectReasonInput').value.trim();
+        if(!reason){ alert('Please give a reason for rejection.'); return; }
+        if(!confirm('Reject request ' + b.id + '?')) return;
+        confirmRejectBtn.disabled = true;
+        confirmRejectBtn.textContent = 'Rejecting…';
+        const rejectExtra = { rejectReason: reason };
+        if(actingApprover){
+          rejectExtra.approverName = actingApprover.name;
+          rejectExtra.approverEmail = actingApprover.email;
+        }
+        const updated = await setStatus(b.id, 'Rejected', rejectExtra);
+        if(!updated){
+          alert('Something went wrong saving this — the connection may be slow or the request timed out. Please try again in a moment.');
+          confirmRejectBtn.disabled = false;
+          confirmRejectBtn.textContent = 'Confirm rejection';
+          return;
+        }
+        renderDetail(updated, isApprover, actingApprover, isAdmin);
+        renderBookingList();
+      });
+    }
+    const saveKeyDateBtn = document.getElementById('saveKeyDateBtn');
+    const keyCollectionDateInputEl = document.getElementById('keyCollectionDateInput');
+    if(keyCollectionDateInputEl){
+      const now = new Date();
+      keyCollectionDateInputEl.min = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+    }
+    if(saveKeyDateBtn){
+      saveKeyDateBtn.addEventListener('click', async function(){
+        const dateVal = document.getElementById('keyCollectionDateInput').value;
+        if(!dateVal){ alert('Please select a key collection date and time.'); return; }
+        saveKeyDateBtn.disabled = true;
+        saveKeyDateBtn.textContent = 'Saving…';
+        const updated = await saveKeyCollectionDate(b.id, dateVal);
+        if(!updated){
+          alert('Something went wrong saving this — the connection may be slow or the request timed out. Please try again in a moment.');
+          saveKeyDateBtn.disabled = false;
+          saveKeyDateBtn.textContent = 'Save key collection date';
+          return;
+        }
+        renderDetail(updated, isApprover, actingApprover, isAdmin);
+        renderBookingList();
+      });
+    }
+    const saveOdoBtn = document.getElementById('saveOdoBtn');
+    const remarkFileInputEl = document.getElementById('remarkAttachment');
+    if(remarkFileInputEl){
+      function renderRemarkFileList(){
+        const container = document.getElementById('remarkFileList');
+        const files = Array.from(remarkFileInputEl.files || []);
+        if(!files.length){ container.innerHTML = ''; return; }
+        container.innerHTML = files.map(function(f, i){
+          return '<div style="display:flex;align-items:center;gap:8px;font-size:13px;margin-bottom:6px;">' +
+            fileThumbHtml(f) +
+            '<span style="flex:1;color:var(--ink-soft);">' + esc(f.name) + '</span>' +
+            '<button type="button" class="ghost remove-remark-file-btn" data-idx="' + i + '" style="padding:2px 8px;">Remove</button>' +
+          '</div>';
+        }).join('');
+        container.querySelectorAll('.remove-remark-file-btn').forEach(function(btn){
+          btn.addEventListener('click', function(){
+            const idx = parseInt(btn.getAttribute('data-idx'), 10);
+            const dt = new DataTransfer();
+            files.forEach(function(f, i){ if(i !== idx) dt.items.add(f); });
+            remarkFileInputEl.files = dt.files;
+            renderRemarkFileList();
+          });
+        });
+      }
+      remarkFileInputEl.addEventListener('change', renderRemarkFileList);
+    }
+    if(saveOdoBtn){
+      const keyReturnDateInputEl = document.getElementById('keyReturnDateInput');
+      if(keyReturnDateInputEl){
+        const now = new Date();
+        keyReturnDateInputEl.min = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+      }
+      saveOdoBtn.addEventListener('click', async function(){
+        const keyReturnVal = document.getElementById('keyReturnDateInput').value;
+        const odoVal = document.getElementById('odoInInput').value;
+        const parkingVal = document.getElementById('parkingInInput').value.trim();
+        const remarkVal = document.getElementById('remarkInput').value.trim();
+        if(!keyReturnVal){ alert('Please select the key return date and time.'); return; }
+        if(!odoVal){ alert('Please enter the odometer in reading.'); return; }
+        if(!parkingVal){ alert('Please enter the parking place.'); return; }
+        saveOdoBtn.disabled = true;
+        saveOdoBtn.textContent = 'Saving…';
+        const remarkLinks = [];
+        let uploadFailures = 0;
+        const remarkFileInput = document.getElementById('remarkAttachment');
+        const files = remarkFileInput.files ? Array.from(remarkFileInput.files) : [];
+        for(let i = 0; i < files.length; i++){
+          saveOdoBtn.textContent = 'Uploading photo ' + (i + 1) + ' of ' + files.length + '…';
+          try{
+            const link = await uploadAttachment(files[i], b.id + '_remark_' + (i + 1));
+            if(link){ remarkLinks.push(link); } else { uploadFailures++; }
+          }catch(err){
+            uploadFailures++;
+            // Non-blocking — the return can still be saved even if a photo fails to upload.
+          }
+        }
+        const remarkAttachmentLink = remarkLinks.join('|');
+        saveOdoBtn.textContent = 'Saving…';
+        const updated = await saveReturn(b.id, keyReturnVal, odoVal, parkingVal, remarkVal, remarkAttachmentLink);
+        if(!updated){
+          alert('Something went wrong saving this — the connection may be slow or the request timed out. Please try again in a moment.');
+          saveOdoBtn.disabled = false;
+          saveOdoBtn.textContent = 'Save return details';
+          return;
+        }
+        if(uploadFailures > 0){
+          alert(uploadFailures + ' photo(s) did not upload, but the rest of the return details were saved.');
+        }
+        renderDetail(updated, isApprover, actingApprover, isAdmin);
+        renderBookingList();
+      });
+    }
+
+    const adminCarTypeFilter = document.getElementById('adminCarTypeFilter');
+    const adminCarAssignSelect = document.getElementById('adminCarAssignSelect');
+    const adminCarAssignPreview = document.getElementById('adminCarAssignPreview');
+    function updateAdminCarAssignPreview(){
+      if(!adminCarAssignPreview) return;
+      const carId = adminCarAssignSelect.value;
+      if(!carId){ adminCarAssignPreview.innerHTML = ''; return; }
+      const lastCompleted = getLastCompletedForCar(carId);
+      adminCarAssignPreview.innerHTML =
+        '<div class="detail-row"><span class="k">Odometer out</span><span class="v">' + esc(lastCompleted ? lastCompleted.odometerIn : 'First trip for this car') + '</span></div>' +
+        '<div class="detail-row"><span class="k">Parking out</span><span class="v">' + esc(lastCompleted ? lastCompleted.parkingPlaceIn : 'First trip for this car') + '</span></div>';
+    }
+    if(adminCarTypeFilter && adminCarAssignSelect){
+      adminCarTypeFilter.addEventListener('change', function(){
+        adminCarAssignSelect.innerHTML = buildCarOptionsHtml(adminCarTypeFilter.value);
+        updateAdminCarAssignPreview();
+      });
+      adminCarAssignSelect.addEventListener('change', updateAdminCarAssignPreview);
+      updateAdminCarAssignPreview();
+    }
+    const confirmCarReassignBtn = document.getElementById('confirmCarReassignBtn');
+    if(confirmCarReassignBtn){
+      confirmCarReassignBtn.addEventListener('click', async function(){
+        const newCarId = adminCarAssignSelect.value;
+        if(!newCarId){ alert('Please select a car.'); return; }
+        if(newCarId === b.carId){ alert('That\'s already the assigned car.'); return; }
+        if(!confirm('Reassign this request to ' + carLabel({ carId: newCarId }) + '? The previously assigned car will become available again.')) return;
+        confirmCarReassignBtn.disabled = true;
+        confirmCarReassignBtn.textContent = 'Reassigning…';
+        const updated = await updateAssignedCar(b.id, newCarId);
+        if(!updated){
+          alert('Something went wrong saving this — the connection may be slow or the request timed out. Please try again in a moment.');
+          confirmCarReassignBtn.disabled = false;
+          confirmCarReassignBtn.textContent = 'Reassign car';
+          return;
+        }
+        renderDetail(updated, isApprover, actingApprover, isAdmin);
+        renderBookingList();
+      });
+    }
+  }
+
+  let activeDetailId = null;
+  let activeIsApprover = false;
+  let activeActingApprover = null;
+  let activeIsAdmin = false;
+
+  function checkForDetailLink(){
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
+    const roleParam = params.get('role');
+    const isAdmin = roleParam === 'admin';
+    const isApprover = roleParam === 'approver' || isAdmin;
+    const approverEmailParam = (params.get('approverEmail') || '').toLowerCase();
+    let actingApprover = null;
+    if(isApprover && approverEmailParam){
+      const match = APPROVERS.filter(function(a){ return (a.email || '').toLowerCase() === approverEmailParam; })[0];
+      actingApprover = match ? { name: match.name, email: match.email } : { name: approverEmailParam, email: approverEmailParam };
+    }
+    if(id){
+      activeDetailId = id;
+      activeIsApprover = isApprover;
+      activeActingApprover = actingApprover;
+      activeIsAdmin = isAdmin;
+      const b = bookingsCache.filter(function(x){ return x.id === id; })[0];
+      renderDetail(b || null, isApprover, actingApprover, isAdmin);
+      showView('detail');
+    }
+  }
+
+  // ================= LIVE UPDATES (polling) =================
+  // SharePoint has no equivalent to Supabase Realtime's instant push, so this tab checks
+  // for changes every 15 seconds instead — close enough to "no refresh needed" for a
+  // departmental booking tool, without needing a SignalR-style push server.
+  const POLL_INTERVAL_MS = 15000;
+  setInterval(async function(){
+    await refreshData();
+    if(activeDetailId){
+      const b = bookingsCache.filter(function(x){ return x.id === activeDetailId; })[0];
+      renderDetail(b || null, activeIsApprover, activeActingApprover, activeIsAdmin);
+    }
+    if(currentAdminLabel){ loadAdminTable(); }
+  }, POLL_INTERVAL_MS);
+
+
+  // ================= ADMIN VIEW =================
+  const lockCard = document.getElementById('lockCard');
+  const adminCard = document.getElementById('adminCard');
+  const approverAdminCard = document.getElementById('approverAdminCard');
+  const carsAdminCard = document.getElementById('carsAdminCard');
+  const registerAdminCard = document.getElementById('registerAdminCard');
+  const carAvailabilityAdminCard = document.getElementById('carAvailabilityAdminCard');
+  document.querySelectorAll('#adminQuickNav [data-jump]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      const target = document.getElementById(btn.getAttribute('data-jump'));
+      if(target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+  const passcodeInput = document.getElementById('passcodeInput');
+  const unlockBtn = document.getElementById('unlockBtn');
+  const lockMsg = document.getElementById('lockMsg');
+  const adminTbody = document.getElementById('adminTbody');
+  const refreshAdminBtn = document.getElementById('refreshAdminBtn');
+  const carsList = document.getElementById('carsList');
+  const addCarBtn = document.getElementById('addCarBtn');
+  const carsMsg = document.getElementById('carsMsg');
+  const approversList = document.getElementById('approversList');
+  const newApproverNameInput = document.getElementById('newApproverNameInput');
+  const newApproverEmailInput = document.getElementById('newApproverEmailInput');
+  const addApproverBtn = document.getElementById('addApproverBtn');
+  const approverMsg = document.getElementById('approverMsg');
+
+  let APPROVERS = [];
+
+  async function loadApprovers(){
+    const res = await spCall(SP_APPROVERS_URL, { action: 'get' });
+    if(res.ok && Array.isArray(res.data)){
+      APPROVERS = res.data.map(fromSpApprover);
+    }
+    renderApproversAdminList();
+  }
+
+  let editingApproverId = null;
+
+  function renderApproversAdminList(){
+    if(!approversList) return;
+    if(!APPROVERS.length){
+      approversList.innerHTML = '<p class="hint">No approvers configured yet — add at least one below.</p>';
+      return;
+    }
+    approversList.innerHTML = APPROVERS.map(function(a){
+      return '<div class="detail-row" data-approver-id="' + esc(a.id) + '">' +
+        '<span class="k">' + esc(a.name) + '</span>' +
+        '<span class="v">' + esc(a.email) +
+          ' <button type="button" class="ghost edit-approver-btn" style="padding:2px 8px;margin-left:8px;">Edit</button>' +
+          ' <button type="button" class="ghost remove-approver-btn" style="padding:2px 8px;margin-left:4px;">Remove</button>' +
+        '</span>' +
+      '</div>';
+    }).join('');
+    approversList.querySelectorAll('.edit-approver-btn').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        const id = btn.closest('[data-approver-id]').getAttribute('data-approver-id');
+        const a = APPROVERS.filter(function(x){ return x.id === id; })[0];
+        if(!a) return;
+        editingApproverId = id;
+        newApproverNameInput.value = a.name || '';
+        newApproverEmailInput.value = a.email || '';
+        addApproverBtn.textContent = 'Save changes';
+        document.getElementById('cancelApproverEditBtn').style.display = 'inline-block';
+        approverMsg.className = 'msg';
+        approverMsg.textContent = '';
+      });
+    });
+    approversList.querySelectorAll('.remove-approver-btn').forEach(function(btn){
+      btn.addEventListener('click', async function(){
+        const row = btn.closest('[data-approver-id]');
+        const id = row.getAttribute('data-approver-id');
+        if(!confirm('Remove this approver?')) return;
+        btn.disabled = true;
+        btn.textContent = 'Removing…';
+        try{
+          const res = await spCall(SP_APPROVERS_URL, { action: 'delete', approver: { id: id } });
+          if(!res.ok) throw new Error(res.error);
+          APPROVERS = APPROVERS.filter(function(a){ return a.id !== id; });
+          renderApproversAdminList();
+        }catch(err){
+          alert('Something went wrong removing this approver. Please try again.');
+          btn.disabled = false;
+          btn.textContent = 'Remove';
+        }
+      });
+    });
+  }
+
+  document.getElementById('cancelApproverEditBtn').addEventListener('click', function(){
+    editingApproverId = null;
+    newApproverNameInput.value = '';
+    newApproverEmailInput.value = '';
+    addApproverBtn.textContent = 'Add approver';
+    document.getElementById('cancelApproverEditBtn').style.display = 'none';
+    approverMsg.className = 'msg';
+    approverMsg.textContent = '';
+  });
+
+  addApproverBtn.addEventListener('click', async function(){
+    const name = newApproverNameInput.value.trim();
+    const email = newApproverEmailInput.value.trim();
+    if(!name || !email){
+      approverMsg.className = 'msg err';
+      approverMsg.textContent = 'Both name and email are required.';
+      return;
+    }
+    addApproverBtn.disabled = true;
+    addApproverBtn.textContent = editingApproverId ? 'Saving…' : 'Adding…';
+    try{
+      if(editingApproverId){
+        const res = await spCall(SP_APPROVERS_URL, { action: 'update', approver: { id: editingApproverId, name: name, email: email } });
+        if(!res.ok){
+          approverMsg.className = 'msg err';
+          approverMsg.textContent = 'Something went wrong saving changes. Please try again.';
+        }else{
+          const idx = APPROVERS.findIndex(function(a){ return a.id === editingApproverId; });
+          if(idx > -1) APPROVERS[idx] = { id: editingApproverId, name: name, email: email };
+          renderApproversAdminList();
+          approverMsg.className = 'msg ok';
+          approverMsg.textContent = 'Approver updated.';
+          editingApproverId = null;
+          document.getElementById('cancelApproverEditBtn').style.display = 'none';
+          newApproverNameInput.value = '';
+          newApproverEmailInput.value = '';
+        }
+      }else{
+        const newApprover = { id: 'APP-' + Date.now().toString(36).toUpperCase(), name: name, email: email };
+        const res = await spCall(SP_APPROVERS_URL, { action: 'create', approver: newApprover });
+        if(!res.ok){
+          approverMsg.className = 'msg err';
+          approverMsg.textContent = 'Something went wrong saving this. Please try again.';
+        }else{
+          APPROVERS = APPROVERS.concat([newApprover]);
+          renderApproversAdminList();
+          approverMsg.className = 'msg ok';
+          approverMsg.textContent = 'Approver added — new requests will be sent to everyone on this list.';
+          newApproverNameInput.value = '';
+          newApproverEmailInput.value = '';
+        }
+      }
+    }catch(err){
+      approverMsg.className = 'msg err';
+      approverMsg.textContent = 'Something went wrong. Please try again.';
+    }finally{
+      addApproverBtn.disabled = false;
+      addApproverBtn.textContent = editingApproverId ? 'Save changes' : 'Add approver';
+    }
+  });
+
+  function unlock(){
+    const entered = passcodeInput.value.trim().toUpperCase();
+    if(ADMIN_PASSCODES.hasOwnProperty(entered)){
+      currentAdminLabel = ADMIN_PASSCODES[entered];
+      lockCard.style.display = 'none';
+      adminCard.style.display = 'block';
+      approverAdminCard.style.display = 'block';
+      carsAdminCard.style.display = 'block';
+      registerAdminCard.style.display = 'block';
+      carAvailabilityAdminCard.style.display = 'block';
+      document.getElementById('adminQuickNav').style.display = 'block';
+      document.getElementById('adminSignedInAs').textContent = 'Signed in as ' + currentAdminLabel + ' — changes reflect in the booking register instantly.';
+      loadAdminTable();
+      renderCarsAdminList();
+      loadApprovers();
+      renderBookingList();
+    }else{
+      lockMsg.className = 'msg err';
+      lockMsg.textContent = 'Incorrect passcode.';
+    }
+  }
+  unlockBtn.addEventListener('click', unlock);
+  passcodeInput.addEventListener('keydown', function(e){ if(e.key === 'Enter') unlock(); });
+  refreshAdminBtn.addEventListener('click', async function(){
+    await refreshData();
+    await loadCars();
+    loadAdminTable();
+    renderCarsAdminList();
+    loadApprovers();
+  });
+
+  let editingCarId = null;
+
+  let carsPage = 1;
+  function renderCarsAdminList(){
+    if(!CARS.length){
+      carsList.innerHTML = '<p class="hint">No cars yet — add one below.</p>';
+      updatePageControls('cars', 1, 1);
+      return;
+    }
+    const searchInput = document.getElementById('carsSearchInput');
+    const term = searchInput ? searchInput.value.trim().toLowerCase() : '';
+    const filtered = CARS.filter(function(c){
+      return !term || (c.id || '').toLowerCase().indexOf(term) > -1 || (c.label || '').toLowerCase().indexOf(term) > -1 || (c.type || '').toLowerCase().indexOf(term) > -1;
+    });
+    if(filtered.length === 0){
+      carsList.innerHTML = '<p class="hint">No cars match your search.</p>';
+      updatePageControls('cars', 1, 1);
+      return;
+    }
+    const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+    if(carsPage > totalPages) carsPage = totalPages;
+    if(carsPage < 1) carsPage = 1;
+    const pageItems = filtered.slice((carsPage - 1) * PAGE_SIZE, carsPage * PAGE_SIZE);
+    carsList.innerHTML = pageItems.map(function(c){
+      return '<div class="detail-row" data-car-id="' + esc(c.id) + '">' +
+        '<span class="k">' + esc(c.id) + '</span>' +
+        '<span class="v">' + esc(c.label) +
+          ' <button type="button" class="ghost edit-car-btn" style="padding:2px 8px;margin-left:8px;">Edit</button>' +
+          ' <button type="button" class="ghost remove-car-btn" style="padding:2px 8px;margin-left:4px;">Remove</button>' +
+        '</span>' +
+      '</div>';
+    }).join('');
+    updatePageControls('cars', carsPage, totalPages);
+    carsList.querySelectorAll('.edit-car-btn').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        const id = btn.closest('[data-car-id]').getAttribute('data-car-id');
+        const c = CARS.filter(function(x){ return x.id === id; })[0];
+        if(!c) return;
+        editingCarId = id;
+        document.getElementById('newCarId').value = c.id;
+        document.getElementById('newCarId').disabled = true; // the ID is the primary key — don't allow changing it mid-edit
+        document.getElementById('newCarLabel').value = c.label || '';
+        document.getElementById('newCarType').value = c.type || '';
+        document.getElementById('newCarBrand').value = c.brand || '';
+        document.getElementById('newCarModel').value = c.model || '';
+        document.getElementById('newCarPlate').value = c.plate || '';
+        addCarBtn.textContent = 'Save changes';
+        document.getElementById('cancelCarEditBtn').style.display = 'inline-block';
+        carsMsg.className = 'msg';
+        carsMsg.textContent = '';
+      });
+    });
+    carsList.querySelectorAll('.remove-car-btn').forEach(function(btn){
+      btn.addEventListener('click', async function(){
+        const id = btn.closest('[data-car-id]').getAttribute('data-car-id');
+        if(!isCarAvailable(id)){
+          alert('This car is currently out on an approved trip — it can\'t be removed until it\'s returned and the trip is completed.');
+          return;
+        }
+        if(!confirm('Remove this car? Past bookings that used it will keep their history.')) return;
+        btn.disabled = true;
+        btn.textContent = 'Removing…';
+        try{
+          const res = await spCall(SP_CARS_URL, { action: 'delete', car: { id: id } });
+          if(!res.ok) throw new Error(res.error);
+          CARS = CARS.filter(function(c){ return c.id !== id; });
+          renderCarAvailabilityList();
+          renderCarsAdminList();
+        }catch(err){
+          alert('Something went wrong removing this car. Please try again.');
+          btn.disabled = false;
+          btn.textContent = 'Remove';
+        }
+      });
+    });
+  }
+
+  document.getElementById('cancelCarEditBtn').addEventListener('click', function(){
+    editingCarId = null;
+    document.getElementById('newCarId').disabled = false;
+    ['newCarId','newCarLabel','newCarType','newCarBrand','newCarModel','newCarPlate'].forEach(function(id){
+      document.getElementById(id).value = '';
+    });
+    addCarBtn.textContent = 'Add car';
+    document.getElementById('cancelCarEditBtn').style.display = 'none';
+    carsMsg.className = 'msg';
+    carsMsg.textContent = '';
+  });
+
+  addCarBtn.addEventListener('click', async function(){
+    const newCar = {
+      id: document.getElementById('newCarId').value.trim(),
+      label: document.getElementById('newCarLabel').value.trim(),
+      type: document.getElementById('newCarType').value.trim(),
+      brand: document.getElementById('newCarBrand').value.trim(),
+      model: document.getElementById('newCarModel').value.trim(),
+      plate: document.getElementById('newCarPlate').value.trim()
+    };
+    if(!newCar.id || !newCar.label){
+      carsMsg.className = 'msg err';
+      carsMsg.textContent = 'Car ID and display label are required.';
+      return;
+    }
+    if(!editingCarId && CARS.some(function(c){ return c.id === newCar.id; })){
+      carsMsg.className = 'msg err';
+      carsMsg.textContent = 'A car with that ID already exists.';
+      return;
+    }
+    addCarBtn.disabled = true;
+    addCarBtn.textContent = editingCarId ? 'Saving…' : 'Adding…';
+    try{
+      if(editingCarId){
+        const res = await spCall(SP_CARS_URL, { action: 'update', car: {
+          id: editingCarId, label: newCar.label, type: newCar.type, brand: newCar.brand, model: newCar.model, plate: newCar.plate
+        } });
+        if(!res.ok){
+          carsMsg.className = 'msg err';
+          carsMsg.textContent = 'Something went wrong saving changes. Please try again.';
+        }else{
+          const idx = CARS.findIndex(function(c){ return c.id === editingCarId; });
+          if(idx > -1) CARS[idx] = newCar;
+          renderCarAvailabilityList();
+          renderCarsAdminList();
+          carsMsg.className = 'msg ok';
+          carsMsg.textContent = 'Car updated.';
+          editingCarId = null;
+          document.getElementById('newCarId').disabled = false;
+          document.getElementById('cancelCarEditBtn').style.display = 'none';
+          ['newCarId','newCarLabel','newCarType','newCarBrand','newCarModel','newCarPlate'].forEach(function(id){
+            document.getElementById(id).value = '';
+          });
+        }
+      }else{
+        const res = await spCall(SP_CARS_URL, { action: 'create', car: newCar });
+        if(!res.ok){
+          carsMsg.className = 'msg err';
+          carsMsg.textContent = 'Something went wrong adding the car. Please try again.';
+        }else{
+          CARS = CARS.concat([newCar]);
+          renderCarAvailabilityList();
+          renderCarsAdminList();
+          carsMsg.className = 'msg ok';
+          carsMsg.textContent = 'Car added.';
+          ['newCarId','newCarLabel','newCarType','newCarBrand','newCarModel','newCarPlate'].forEach(function(id){
+            document.getElementById(id).value = '';
+          });
+        }
+      }
+    }catch(err){
+      carsMsg.className = 'msg err';
+      carsMsg.textContent = 'Something went wrong. Please try again.';
+    }finally{
+      addCarBtn.disabled = false;
+      addCarBtn.textContent = editingCarId ? 'Save changes' : 'Add car';
+    }
+  });
+
+  function loadAdminTable(){
+    if(bookingsCache.length === 0){
+      adminTbody.innerHTML = '<tr><td colspan="6" class="empty-state">No requests logged yet.</td></tr>';
+      updatePageControls('admin', 1, 1);
+      return;
+    }
+    const searchInput = document.getElementById('adminSearchInput');
+    const statusFilter = document.getElementById('adminStatusFilter');
+    const term = searchInput ? searchInput.value.trim() : '';
+    const status = statusFilter ? statusFilter.value : '';
+    const filtered = getFilteredSorted(term, status);
+    if(filtered.length === 0){
+      adminTbody.innerHTML = '<tr><td colspan="6" class="empty-state">No requests match your search.</td></tr>';
+      updatePageControls('admin', 1, 1);
+      return;
+    }
+    const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+    if(adminPage > totalPages) adminPage = totalPages;
+    if(adminPage < 1) adminPage = 1;
+    const pageItems = filtered.slice((adminPage - 1) * PAGE_SIZE, adminPage * PAGE_SIZE);
+
+    adminTbody.innerHTML = pageItems.map(function(b){
+      const viewLink = viewLinkFor(b.id) + '&role=admin&admin=1';
+      const canQuickReject = b.status === 'Pending';
+      return '<tr data-id="' + esc(b.id) + '">' +
+        '<td><div class="admin-cell-name">' + esc(b.staffName) + '</div><div class="admin-cell-sub">' + esc(b.department) + ' · ' + esc(b.employeeNo) + '</div></td>' +
+        '<td><div>' + esc(formatTripSpan(b)) + '</div><div class="admin-cell-sub">' + esc(b.destination) + '</div></td>' +
+        '<td><div class="admin-cell-sub">' + esc(carLabel(b)) + '</div></td>' +
+        '<td><div class="admin-cell-sub">Odo out: ' + esc(b.odometerOut || '—') + '</div><div class="admin-cell-sub">Odo in: ' + esc(b.odometerIn || '—') + '</div><div class="admin-cell-sub">Park out: ' + esc(b.parkingPlaceOut || '—') + '</div><div class="admin-cell-sub">Park in: ' + esc(b.parkingPlaceIn || '—') + '</div></td>' +
+        '<td><span class="badge ' + statusClass(b.status) + '">' + esc(b.status) + '</span></td>' +
+        '<td>' +
+          '<a class="ghost" href="' + esc(viewLink) + '" target="_blank" rel="noopener" style="display:inline-block;text-decoration:none;padding:6px 10px;border-radius:6px;margin-bottom:4px;">View / Assign car</a>' +
+          (canQuickReject ? '<button class="danger quick-reject" type="button" style="display:block;margin-top:4px;padding:6px 10px;">Quick reject</button>' : '') +
+        '</td>' +
+      '</tr>';
+    }).join('');
+    updatePageControls('admin', adminPage, totalPages);
+
+    adminTbody.querySelectorAll('tr').forEach(function(tr){
+      const id = tr.getAttribute('data-id');
+      const quickRejectBtn = tr.querySelector('.quick-reject');
+      if(quickRejectBtn){
+        quickRejectBtn.addEventListener('click', async function(){
+          const reason = prompt('Reason for rejecting this request:');
+          if(reason === null) return; // cancelled
+          if(!reason.trim()){ alert('A reason is required to reject.'); return; }
+          quickRejectBtn.disabled = true;
+          quickRejectBtn.textContent = 'Rejecting…';
+          try{
+            const updated = await setStatus(id, 'Rejected', { rejectReason: reason.trim() });
+            if(!updated) throw new Error('save failed');
+            renderBookingList();
+            loadAdminTable();
+          }catch(e){
+            alert('Something went wrong — please try again.');
+            quickRejectBtn.disabled = false;
+            quickRejectBtn.textContent = 'Quick reject';
+          }
+        });
+      }
+    });
+  }
+
+  // Wire up search/filter/pagination controls for both lists.
+  const registerSearchInput = document.getElementById('registerSearchInput');
+  const registerStatusFilterEl = document.getElementById('registerStatusFilter');
+  if(registerSearchInput){
+    registerSearchInput.addEventListener('input', function(){ registerPage = 1; renderBookingList(); });
+    registerStatusFilterEl.addEventListener('change', function(){ registerPage = 1; renderBookingList(); });
+    document.getElementById('registerPrevBtn').addEventListener('click', function(){ registerPage--; renderBookingList(); });
+    document.getElementById('registerNextBtn').addEventListener('click', function(){ registerPage++; renderBookingList(); });
+  }
+  const adminSearchInputEl = document.getElementById('adminSearchInput');
+  const adminStatusFilterEl = document.getElementById('adminStatusFilter');
+  if(adminSearchInputEl){
+    adminSearchInputEl.addEventListener('input', function(){ adminPage = 1; loadAdminTable(); });
+    adminStatusFilterEl.addEventListener('change', function(){ adminPage = 1; loadAdminTable(); });
+    document.getElementById('adminPrevBtn').addEventListener('click', function(){ adminPage--; loadAdminTable(); });
+    document.getElementById('adminNextBtn').addEventListener('click', function(){ adminPage++; loadAdminTable(); });
+  }
+
+  const availabilitySearchInput = document.getElementById('availabilitySearchInput');
+  const availabilityStatusFilterEl = document.getElementById('availabilityStatusFilter');
+  if(availabilitySearchInput){
+    availabilitySearchInput.addEventListener('input', function(){ availabilityPage = 1; renderCarAvailabilityList(); });
+    availabilityStatusFilterEl.addEventListener('change', function(){ availabilityPage = 1; renderCarAvailabilityList(); });
+    document.getElementById('availabilityPrevBtn').addEventListener('click', function(){ availabilityPage--; renderCarAvailabilityList(); });
+    document.getElementById('availabilityNextBtn').addEventListener('click', function(){ availabilityPage++; renderCarAvailabilityList(); });
+  }
+  const carsSearchInputEl = document.getElementById('carsSearchInput');
+  if(carsSearchInputEl){
+    carsSearchInputEl.addEventListener('input', function(){ carsPage = 1; renderCarsAdminList(); });
+    document.getElementById('carsPrevBtn').addEventListener('click', function(){ carsPage--; renderCarsAdminList(); });
+    document.getElementById('carsNextBtn').addEventListener('click', function(){ carsPage++; renderCarsAdminList(); });
+  }
+
+  // ================= INIT =================
+  Promise.all([refreshData(), loadCars(), loadApprovers()]).then(function(){
+    checkForDetailLink();
+    if(document.getElementById('adminCard').style.display !== 'none' && currentAdminLabel){
+      loadAdminTable();
+    }
+  });
+})();
+</script>
+</body>
+</html>
