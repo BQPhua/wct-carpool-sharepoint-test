@@ -634,16 +634,21 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
   }
   // Power Automate's direct HTTP-trigger endpoints occasionally finish the flow correctly
   // (the SharePoint write genuinely succeeds) but drop the response on the way back to the
-  // browser — a gateway-level "NoResponse"/502, not a real failure. Retrying once after a
-  // short pause smooths over that flakiness instead of showing the user a false error.
-  // Safe to retry: update/delete are naturally repeat-safe, and create failing this rarely
-  // AND having actually succeeded on attempt 1 is an acceptable, uncommon trade-off against
-  // constantly surfacing false "something went wrong" messages.
+  // browser — a gateway-level "NoResponse"/502, not a real failure. This has shown up
+  // persistently (not just as a rare blip) under heavy testing, so this retries up to 3
+  // times total with increasing pauses before finally giving up. Only used for get/update/
+  // delete, which are naturally safe to repeat — create uses spCreateSafe instead (below),
+  // since blindly repeating a create risks a real duplicate row.
   async function spCall(url, payload){
-    const first = await spCallOnce(url, payload);
-    if(first.ok) return first;
-    await new Promise(function(resolve){ setTimeout(resolve, 1200); });
-    return spCallOnce(url, payload);
+    const delays = [1200, 2500, 4000];
+    let last = await spCallOnce(url, payload);
+    if(last.ok) return last;
+    for(let i = 0; i < delays.length; i++){
+      await new Promise(function(resolve){ setTimeout(resolve, delays[i]); });
+      last = await spCallOnce(url, payload);
+      if(last.ok) return last;
+    }
+    return last;
   }
 
   // "Create" is NOT safe to retry blindly like get/update/delete — we've seen the flow
@@ -651,13 +656,15 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
   // to the browser still gets lost, which would mean a blind retry quietly creates a
   // duplicate row. This checks whether the record actually exists before ever sending a
   // second create, so it can recover from a lost response without ever double-creating.
+  // The existence check itself uses spCall (which already retries) rather than a single
+  // attempt — a lost response on the check would otherwise wrongly report "not found."
   // mapFn is whichever fromSp* function matches this list, used to read back real IDs.
   async function spCreateSafe(url, payload, expectedId, mapFn){
     for(let attempt = 0; attempt < 2; attempt++){
       const res = await spCallOnce(url, payload);
       if(res.ok) return true;
       await new Promise(function(resolve){ setTimeout(resolve, 1200); });
-      const check = await spCallOnce(url, { action: 'get' });
+      const check = await spCall(url, { action: 'get' });
       if(check.ok && Array.isArray(check.data)){
         const alreadyExists = check.data.some(function(row){ return mapFn(row).id === expectedId; });
         if(alreadyExists) return true; // it saved despite the lost response — don't create again
