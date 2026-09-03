@@ -612,14 +612,15 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
   const SP_CARS_URL = 'https://defaulte41691d30c4541fd92c76d4d998490.50.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/15/workflows/750e55fc7cf6403689ef551fb1e7a0eb/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=VYhEilsk2xO08lFcXYeVmFarvbvzOOOcLcYGmXaNNYk';
   const SP_APPROVERS_URL = 'https://defaulte41691d30c4541fd92c76d4d998490.50.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/06/workflows/a8fe3a2a34ba4fac955d21dbac80d125/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=USChum-LjNIXx3y6sL2Pabck0iU9_c5JSO8o0uCV9BM';
 
-  // Generic caller for all three SharePoint flows. Uses text/plain like the existing
-  // Power Automate email calls below — avoids a CORS preflight, which these flows
-  // handle poorly.
+  // Generic caller for all three SharePoint flows. Unlike the email flow's apiCall below,
+  // these flows enforce a strict JSON schema on the trigger, so the body must actually be
+  // sent as application/json — text/plain would arrive as a raw (unparsed) string and fail
+  // schema validation ("Expected Object but got String").
   async function spCall(url, payload){
     try{
       const res = await fetch(url, {
         method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
       const json = await res.json().catch(function(){ return null; });
