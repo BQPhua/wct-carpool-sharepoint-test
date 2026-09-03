@@ -633,20 +633,6 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
     }
   }
 
-  // SharePoint import quirks: whichever CSV column came first in each list got absorbed
-  // into SharePoint's built-in "Title" field, and we don't know for certain what casing
-  // SharePoint settled on for the rest. This reads a field defensively — exact name first,
-  // then Capitalized, then a case-insensitive scan — so small naming differences between
-  // the lists and this code don't silently produce blank data.
-  function spField(row, name){
-    if(row[name] !== undefined) return row[name];
-    const cap = name.charAt(0).toUpperCase() + name.slice(1);
-    if(row[cap] !== undefined) return row[cap];
-    const lower = name.toLowerCase();
-    const key = Object.keys(row).filter(function(k){ return k.toLowerCase() === lower; })[0];
-    return key ? row[key] : undefined;
-  }
-
   // The rest of this app's JS uses camelCase everywhere; these functions are the only
   // place the translation to/from the SharePoint list's field names happens.
   // NOTE: in the Bookings list, the first CSV column (staff_name) became the built-in
@@ -675,38 +661,47 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
       submitted_at: b.submittedAt || '', actioned_at: b.actionedAt || '', completed_at: b.completedAt || ''
     };
   }
+  // SharePoint's "Create list from Excel" import quietly renames every column except
+  // whichever one became Title to field_0, field_1, field_2... in the ORIGINAL CSV
+  // column order (the Title-consuming column's number is simply skipped forever, not
+  // reused). Confirmed against real data from both lists — these indices are exact,
+  // not guessed.
   function fromSpBooking(row){
-    const str = function(v){ return v == null ? '' : String(v); };
+    const str = function(v){ return (v === undefined || v === null) ? '' : String(v); };
     return {
-      id: spField(row,'id'), staffName: spField(row,'Title') || '', department: spField(row,'department'),
-      company: spField(row,'company') || '', employeeNo: spField(row,'employee_no'),
-      licenceExpiryDate: spField(row,'licence_expiry_date') || '', contact: spField(row,'contact'),
-      approverName: spField(row,'approver_name') || '', approverEmail: spField(row,'approver_email') || '',
-      requesterEmail: spField(row,'requester_email'),
-      tripDate: spField(row,'trip_date'), returnDate: spField(row,'return_date'),
-      timeOut: spField(row,'time_out'), timeIn: spField(row,'time_in'),
-      destination: spField(row,'destination'), requestedCarType: spField(row,'requested_car_type') || '',
-      purpose: spField(row,'purpose'),
-      carId: spField(row,'car_id') || '', vehicleType: spField(row,'vehicle_type') || '',
-      carBrand: spField(row,'car_brand') || '', carModel: spField(row,'car_model') || '',
-      odometerOut: str(spField(row,'odometer_out')), odometerIn: str(spField(row,'odometer_in')),
-      parkingPlaceOut: spField(row,'parking_place_out') || '', parkingPlaceIn: spField(row,'parking_place_in') || '',
-      keyCollectionDate: spField(row,'key_collection_date') || '',
-      keyReturnDate: spField(row,'key_return_date') || '',
-      remark: spField(row,'remark') || '', remarkAttachmentLink: spField(row,'remark_attachment_link') || '',
-      licenceAttachmentLink: spField(row,'licence_attachment_link') || '',
-      status: spField(row,'status'), rejectReason: spField(row,'reject_reason') || '',
-      submittedAt: spField(row,'submitted_at'), actionedAt: spField(row,'actioned_at') || '', completedAt: spField(row,'completed_at') || ''
+      id: str(row.field_0), staffName: str(row.Title), department: str(row.field_2),
+      company: str(row.field_36), employeeNo: str(row.field_3),
+      licenceExpiryDate: str(row.field_33), contact: str(row.field_5),
+      approverName: str(row.field_6), approverEmail: str(row.field_7),
+      requesterEmail: str(row.field_8),
+      tripDate: str(row.field_9), returnDate: str(row.field_10),
+      timeOut: str(row.field_11), timeIn: str(row.field_12),
+      destination: str(row.field_13), requestedCarType: str(row.field_32),
+      purpose: str(row.field_15),
+      carId: str(row.field_16), vehicleType: str(row.field_17),
+      carBrand: str(row.field_18), carModel: str(row.field_19),
+      odometerOut: str(row.field_20), odometerIn: str(row.field_21),
+      parkingPlaceOut: str(row.field_22), parkingPlaceIn: str(row.field_23),
+      keyCollectionDate: str(row.field_34),
+      keyReturnDate: str(row.field_35),
+      remark: str(row.field_24), remarkAttachmentLink: str(row.field_25),
+      licenceAttachmentLink: str(row.field_26),
+      status: str(row.field_27), rejectReason: str(row.field_28),
+      submittedAt: str(row.field_29), actionedAt: str(row.field_30), completedAt: str(row.field_31)
     };
   }
   function fromSpCar(row){
     return {
-      id: spField(row,'Title'), label: spField(row,'label'), type: spField(row,'type'),
-      brand: spField(row,'brand'), model: spField(row,'model'), plate: spField(row,'plate')
+      id: row.Title, label: row.field_1, type: row.field_2,
+      brand: row.field_3, model: row.field_4, plate: row.field_5
     };
   }
+  // NOT YET CONFIRMED against real data — the Approvers flow is currently erroring
+  // (see "List not found"), so this follows the same pattern as Cars (id -> Title,
+  // then field_1, field_2... in original CSV order) but needs a quick real-data check
+  // once that flow is fixed, the same way Bookings and Cars were verified above.
   function fromSpApprover(row){
-    return { id: spField(row,'Title'), name: spField(row,'name'), email: spField(row,'email') };
+    return { id: row.Title, name: row.field_1, email: row.field_2 };
   }
 
   // ================= POWER AUTOMATE (kept only for sending Outlook emails and OneDrive
