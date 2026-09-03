@@ -616,7 +616,7 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
   // these flows enforce a strict JSON schema on the trigger, so the body must actually be
   // sent as application/json — text/plain would arrive as a raw (unparsed) string and fail
   // schema validation ("Expected Object but got String").
-  async function spCall(url, payload){
+  async function spCallOnce(url, payload){
     try{
       const res = await fetch(url, {
         method: 'POST',
@@ -631,6 +631,19 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
     }catch(err){
       return { ok:false, error:'network_error', data:null };
     }
+  }
+  // Power Automate's direct HTTP-trigger endpoints occasionally finish the flow correctly
+  // (the SharePoint write genuinely succeeds) but drop the response on the way back to the
+  // browser — a gateway-level "NoResponse"/502, not a real failure. Retrying once after a
+  // short pause smooths over that flakiness instead of showing the user a false error.
+  // Safe to retry: update/delete are naturally repeat-safe, and create failing this rarely
+  // AND having actually succeeded on attempt 1 is an acceptable, uncommon trade-off against
+  // constantly surfacing false "something went wrong" messages.
+  async function spCall(url, payload){
+    const first = await spCallOnce(url, payload);
+    if(first.ok) return first;
+    await new Promise(function(resolve){ setTimeout(resolve, 1200); });
+    return spCallOnce(url, payload);
   }
 
   // The rest of this app's JS uses camelCase everywhere; these functions are the only
