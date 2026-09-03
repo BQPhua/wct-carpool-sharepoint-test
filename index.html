@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>WCT EV Pool Car Request Form</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -265,8 +264,8 @@
   </div>
 
   <div class="tabs">
-    <button class="tab-btn active" id="tabRequestBtn">Request form</button>
-    <button class="tab-btn" id="tabAdminBtn">Admin view</button>
+    <button type="button" class="tab-btn active" id="tabRequestBtn">Request form</button>
+    <button type="button" class="tab-btn" id="tabAdminBtn">Admin view</button>
   </div>
 
   <div class="view active" id="viewRequest">
@@ -378,7 +377,7 @@
             <p class="side-sub" style="margin-bottom:8px;">Scan to fill this out on the go.</p>
             <div class="qr-copy-row">
               <input type="text" id="pageUrl" readonly>
-              <button class="copy-btn" id="copyUrlBtn">Copy</button>
+              <button type="button" class="copy-btn" id="copyUrlBtn">Copy</button>
             </div>
           </div>
         </div>
@@ -597,7 +596,7 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
   };
   let currentAdminLabel = '';
 
-  // Default fallback pool cars — used only if Supabase is unreachable on first load.
+  // Default fallback pool cars — used only if the SharePoint flow is unreachable on first load.
   let CARS = [
     { id:'EV-1', label:'EV 1 — Proton eMas 5 (ABC 1234)', type:'EV', brand:'Proton', model:'eMas 5', plate:'ABC 1234' },
     { id:'EV-2', label:'EV 2 — Proton eMas 5 (ABC 5678)', type:'EV', brand:'Proton', model:'eMas 5', plate:'ABC 5678' }
@@ -745,8 +744,8 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
     return { id: row.Title, name: row.field_1, email: row.field_2 };
   }
 
-  // ================= POWER AUTOMATE (kept only for sending Outlook emails and OneDrive
-  // attachment uploads — Supabase above is now the source of truth for all data reads/writes) =================
+  // ================= POWER AUTOMATE (kept only for sending Outlook emails — the
+  // SharePoint flows above are now the source of truth for all data reads/writes) =================
   // TEST flow — deliberately NOT the live production email flow, so testing this
   // copy never sends real emails through the production system.
   const API_BASE_URL = 'https://defaulte41691d30c4541fd92c76d4d998490.50.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/13/workflows/41b0db30a2e04dc6925608003337c5cc/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=VMRJt7zmUMMz1PL8yK1il5656VcV6wSgaGCr-DywX5g';
@@ -771,7 +770,7 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
     }
   }
   // Fire-and-forget — used only for the email side effects. We never let a Power Automate
-  // hiccup block or fail a Supabase-backed action, since Supabase is now the real source of truth.
+  // hiccup block or fail a SharePoint-backed action, since SharePoint is now the real source of truth.
   function notifyViaFlow(payload){
     apiCall(payload).catch(function(){});
   }
@@ -796,23 +795,39 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
     return viewLinkFor(id) + '&role=approver';
   }
 
-  // TEMPORARY — file storage has not been migrated off Supabase yet. Licence and remark
-  // photos still upload here until a SharePoint document-library flow replaces this.
-  // This is the one remaining Supabase connection in the app; everything else (bookings,
-  // cars, approvers) now goes through SharePoint via the flows above.
-  const SUPABASE_URL = 'https://ivjddxqxzklouhuzuxox.supabase.co';
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2amRkeHF4emtsb3VodXp1eG94Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY1NjIzMDIsImV4cCI6MjEwMjEzODMwMn0.5v9v21jUdXRcbmr83courezZYzJD_Wf5O4N3s5s1QP4';
-  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-  // Uploads directly to Supabase Storage (bucket must be public — see setup notes).
-  // Returns the file's public URL, or '' on failure.
+  // Uploads via the SharePoint upload flow — converts the file to base64, sends it to
+  // the flow, which saves it into the Attachments folder and returns an organization-only
+  // shared link (people outside WCT can't open it, even with the link — an improvement
+  // over Supabase Storage's fully-public bucket, which was flagged as a privacy concern
+  // for driving licence photos). Shared by both licence and remark attachments.
+  const SP_UPLOAD_URL = 'https://defaulte41691d30c4541fd92c76d4d998490.50.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/03/workflows/d0df1e1181c341e3a8ba26ada2c73de6/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=YCUkEiNxK-BzQPskNA3PH1U4RzWykPohMcVmojZY39M';
+  function fileToBase64(file){
+    return new Promise(function(resolve, reject){
+      const reader = new FileReader();
+      reader.onload = function(){
+        // reader.result looks like "data:image/png;base64,AAAA..." — the flow only wants
+        // the part after the comma.
+        resolve(String(reader.result).split(',')[1] || '');
+      };
+      reader.onerror = function(){ reject(reader.error); };
+      reader.readAsDataURL(file);
+    });
+  }
+  // Returns the file's shareable URL, or '' on failure. Retries through the same spCall
+  // used for everything else — safe to repeat, since re-uploading the same bytes under a
+  // fresh timestamped name never collides with anything.
   async function uploadAttachment(file, pathPrefix){
     const safeExt = (file.name.split('.').pop() || 'bin').toLowerCase().replace(/[^a-z0-9]/g, '');
-    const path = pathPrefix + '_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8) + '.' + safeExt;
-    const { error } = await sb.storage.from('attachments').upload(path, file, { cacheControl: '3600', upsert: false });
-    if(error){ console.error('uploadAttachment', error); return ''; }
-    const { data } = sb.storage.from('attachments').getPublicUrl(path);
-    return data ? data.publicUrl : '';
+    const fileName = pathPrefix + '_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8) + '.' + safeExt;
+    try{
+      const base64 = await fileToBase64(file);
+      const res = await spCall(SP_UPLOAD_URL, { fileName: fileName, fileContentBase64: base64 });
+      if(!res.ok || !res.data || !res.data.url){ console.error('uploadAttachment', res.error); return ''; }
+      return res.data.url;
+    }catch(err){
+      console.error('uploadAttachment', err);
+      return '';
+    }
   }
 
   // ================= HELPERS =================
@@ -1177,7 +1192,7 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
       '<div style="width:64px;height:64px;border-radius:6px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--ink-soft);background:#f5f5f0;flex:0 0 auto;">' + esc(ext) + '</div>' +
     '</a>';
   }
-  // For files already uploaded (Supabase Storage public URLs) — used in the detail view.
+  // For files already uploaded (SharePoint shared links) — used in the detail view.
   function linkThumbHtml(url, label){
     if(!url) return '';
     const isPdf = /\.pdf($|\?)/i.test(url);
