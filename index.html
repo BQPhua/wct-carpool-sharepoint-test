@@ -646,6 +646,27 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
     return spCallOnce(url, payload);
   }
 
+  // "Create" is NOT safe to retry blindly like get/update/delete — we've seen the flow
+  // genuinely succeed (confirmed in Power Automate's run history) while the response back
+  // to the browser still gets lost, which would mean a blind retry quietly creates a
+  // duplicate row. This checks whether the record actually exists before ever sending a
+  // second create, so it can recover from a lost response without ever double-creating.
+  // mapFn is whichever fromSp* function matches this list, used to read back real IDs.
+  async function spCreateSafe(url, payload, expectedId, mapFn){
+    for(let attempt = 0; attempt < 2; attempt++){
+      const res = await spCallOnce(url, payload);
+      if(res.ok) return true;
+      await new Promise(function(resolve){ setTimeout(resolve, 1200); });
+      const check = await spCallOnce(url, { action: 'get' });
+      if(check.ok && Array.isArray(check.data)){
+        const alreadyExists = check.data.some(function(row){ return mapFn(row).id === expectedId; });
+        if(alreadyExists) return true; // it saved despite the lost response — don't create again
+      }
+      // genuinely missing — loop will try create one more time (max 2 real attempts total)
+    }
+    return false;
+  }
+
   // The rest of this app's JS uses camelCase everywhere; these functions are the only
   // place the translation to/from the SharePoint list's field names happens.
   // NOTE: in the Bookings list, the first CSV column (staff_name) became the built-in
@@ -1215,10 +1236,10 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
       }
       if(btn) btn.textContent = 'Submitting…';
       const record = Object.assign({ id: id }, data);
-      const createRes = await spCall(SP_BOOKINGS_URL, { action: 'create', booking: toSpBooking(record) });
+      const created = await spCreateSafe(SP_BOOKINGS_URL, { action: 'create', booking: toSpBooking(record) }, id, fromSpBooking);
 
-      if(!createRes.ok){
-        console.error('create booking', createRes.error);
+      if(!created){
+        console.error('create booking failed');
         alert('Something went wrong saving your request. Please try again.');
         if(btn){ btn.disabled = false; btn.textContent = 'Confirm & submit'; }
         return;
@@ -1960,8 +1981,8 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
         }
       }else{
         const newApprover = { id: 'APP-' + Date.now().toString(36).toUpperCase(), name: name, email: email };
-        const res = await spCall(SP_APPROVERS_URL, { action: 'create', approver: newApprover });
-        if(!res.ok){
+        const created = await spCreateSafe(SP_APPROVERS_URL, { action: 'create', approver: newApprover }, newApprover.id, fromSpApprover);
+        if(!created){
           approverMsg.className = 'msg err';
           approverMsg.textContent = 'Something went wrong saving this. Please try again.';
         }else{
@@ -2146,8 +2167,8 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
           });
         }
       }else{
-        const res = await spCall(SP_CARS_URL, { action: 'create', car: newCar });
-        if(!res.ok){
+        const created = await spCreateSafe(SP_CARS_URL, { action: 'create', car: newCar }, newCar.id, fromSpCar);
+        if(!created){
           carsMsg.className = 'msg err';
           carsMsg.textContent = 'Something went wrong adding the car. Please try again.';
         }else{
